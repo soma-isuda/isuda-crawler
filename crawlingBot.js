@@ -21,8 +21,10 @@ var chSchedule = {
 var createPhantom = function (channel){
     phantom.create(function (ph) {
         ph.createPage(function (page) {
+
             if(channel == 'HM')
                 util.setUserAgent(page);
+//            page.set('scrollPosition', {top:800,left:0});
             page.open(chSchedule[channel], function (status) {
                 console.log("crawler - opening page", chSchedule[channel], status);
                 if(channel == 'CJ') {
@@ -34,19 +36,20 @@ var createPhantom = function (channel){
                 }else if(channel == 'HS'){
                     evaluater.evaluateHSPage(page, ph);
                 }else if(channel == 'LH'){
-                    evaluater.evaluateLHPage(page, ph); //
+                    evaluater.evaluateLHPage(page, ph);
                 }else if(channel == 'NS'){
                     evaluater.evaluateNSPage(page, ph); //
                 }else{
                     console.log('not supported channel..');
                     ph.exit();
+
                 }
             });
         });
     });
 };
-
-createPhantom('LH');
+var args = process.argv.slice(2);
+createPhantom(args);    //node crawlingBot 'CJ'
 
 /*
 for(var key in chSchedule){
