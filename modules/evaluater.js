@@ -622,5 +622,127 @@ exports.evaluateLHPage = function (page, ph) {
 
 //TODO(must) : 시간에 따라 편성표가 어떻게 변하는 지 확인해봐야 함.
 exports.evaluateNSPage = function (page, ph) {
+    page.evaluate(function () {
+            var util = {
+                toDateTime: function (str) {
+                    return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
+                        + str.substring(8, 10) + ':' + str.substring(10, 12) + ':00';
+                },
+                toCleanName: function (str) {
+                    var removedTagStr;  var after;
+                    var first = str.search(/\[/);
+                    var second = str.search(/\]/);
+                    if (first == -1 || second == -1) {
+                        removedTagStr = str;
+                    }
+                    removedTagStr = str.replace(str.slice(first, second + 1), '');
+                    after = removedTagStr.replace(/\t/g,'').replace(/\n/g,'');
+                    return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
 
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
+                }
+            };
+
+            var productInfoArr = [];
+
+            function getData() {
+                var productInfoArr = [];
+                var frameArr = $('.tvTabView div').first().find('.nsDetalitype');   //원래 페이지의 오타
+                var dateStr = $('.calendar .active').find('.month').text() + $('.calendar .active').find('.day').text();
+                var timeStrArr = $('.times a'); //07:25 ~ 08:20 들의 배열
+
+                // 크롤링하는 시점의 년도 + 크롤링해온 월 일
+                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+
+                // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
+                // 만드는 정보 : id, providerId
+
+                var isTomorrow = false;
+                var idx;
+                for (idx = 0; idx < frameArr.length; idx++) {
+                    var productInfo = {};
+                    var frameEle = $(frameArr[idx]);  //main frame
+                    var timeEle = $(timeStrArr[idx]);
+
+                    var timeStr = timeEle.text(); //19:35 ~ 21:45
+                    var strArr = timeStr.split(' ');
+                    var startTime = strArr[0].replace(':','');   //1935
+                    var endTime = strArr[2].replace(':','');     //2145
+
+                    //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                    var startDateTime;
+                    var endDateTime;
+
+
+
+                    if(isTomorrow){
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                        startDateTime = util.toTomorrow(cDateStr, startTime);
+                    }else{
+                        endDateTime = cDateStr + endTime;
+                        startDateTime = cDateStr + startTime;
+
+                    }
+
+                    if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                        isTomorrow = true;
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                    }
+
+                    productInfo.productStartTime = util.toDateTime(startDateTime);
+                    productInfo.productEndTime = util.toDateTime(endDateTime);
+
+                    productInfo.providerId = 'NS';
+                    productInfo.id = productInfo.providerId + startDateTime;
+
+
+                    var ele = frameEle.find('.first_h_conts');
+
+                    productInfo.productName = util.toCleanName(ele.find('.contents .con').text());
+
+                    var priceStr = ele.find('.price strong').text();
+                    productInfo.productPrice = Number(priceStr.replace(/,/g, '').replace('원', ''));
+
+                    productInfo.productPgURL = '';  //NS는 비워두고 해당 시간에 퍼온다. 웹 페이지 주소를 미리 알 수가 없다.
+
+                    productInfo.productImgURL = ele.find('.img img').attr('src');
+
+                    productInfoArr.push(productInfo);
+                }
+
+                return productInfoArr;
+            }
+
+            productInfoArr = getData();
+
+            return  productInfoArr;
+        },
+        function (result) {
+
+            console.log(result);
+            for (var idx in result) {
+                var p = result[idx];
+
+                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
+                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
+                console.log(data);
+
+                storeProductInfo(data);
+            }
+        });
 };

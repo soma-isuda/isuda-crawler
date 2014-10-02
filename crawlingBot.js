@@ -32,13 +32,13 @@ var createPhantom = function (channel){
                 }else if(channel == 'GS'){
                     evaluater.evaluateGSPage(page, ph);
                 }else if(channel == 'HM'){
-                    evaluater.evaluateHMPage(page, ph); //
+                    evaluater.evaluateHMPage(page, ph);
                 }else if(channel == 'HS'){
                     evaluater.evaluateHSPage(page, ph);
                 }else if(channel == 'LH'){
                     evaluater.evaluateLHPage(page, ph);
                 }else if(channel == 'NS'){
-                    evaluater.evaluateNSPage(page, ph); //
+                    evaluater.evaluateNSPage(page, ph);
                 }else{
                     console.log('not supported channel..');
                     ph.exit();
