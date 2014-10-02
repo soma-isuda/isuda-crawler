@@ -323,7 +323,7 @@ exports.evaluateHMPage = function (page, ph) {
                             var priceStr = ele.find('.price2').text().replace('원','');
                             productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
 
-                            productInfo.productPgURL = 'http://www.hyundaihmall.com/' + ele.attr('href');
+                            productInfo.productPgURL = 'http://m.hyundaihmall.com' + ele.attr('href');
 
                             productInfo.productImgURL = ele.find('.goods_img img').attr('src');
                             productInfo.providerId = 'HM';
