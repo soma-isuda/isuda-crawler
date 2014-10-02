@@ -280,7 +280,6 @@ exports.evaluateHMPage = function (page, ph) {
                             var strArr = timeStr.split(' ');
                             var startTime = strArr[0].replace(':','');   //1935
                             var endTime = strArr[2].replace(':','');     //2145
-                            productInfo.timeStr = timeStr;
 
                             // 크롤링하는 시점의 년도 + 크롤링해온 월 일
                             var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
@@ -289,17 +288,6 @@ exports.evaluateHMPage = function (page, ph) {
                             var startDateTime;
                             var endDateTime;
 
-                            if(  parseInt(endTime.substr(0,2)) < parseInt(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
-                                isTomorrow = true;
-                            }else{
-                                isTomorrow = false;
-                            }
-                            productInfo.endTime = endTime;
-                            productInfo.startTime = startTime;
-                            productInfo.eT = parseInt('0815'.substr(0,2));  //TODO(OMG..) : 하..  이게 0이라니 ... 노답이다..
-                            productInfo.isTomorrow = isTomorrow;
-                            productInfo.index = idx;
-
                             if(isTomorrow){
                                 endDateTime = util.toTomorrow(cDateStr, endTime);
                                 startDateTime = util.toTomorrow(cDateStr, startTime);
@@ -307,6 +295,11 @@ exports.evaluateHMPage = function (page, ph) {
                                 endDateTime = cDateStr + endTime;
                                 startDateTime = cDateStr + startTime;
 
+                            }
+
+                            if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                                isTomorrow = true;
+                                endDateTime = util.toTomorrow(cDateStr, endTime);
                             }
 
                             productInfo.productStartTime = util.toDateTime(startDateTime);
@@ -343,13 +336,13 @@ exports.evaluateHMPage = function (page, ph) {
 
                     console.log('second evaluate - result', result);
 
-                    for (var idx in result) {
-                        var p = result[idx];
-
-                        var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                            p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-//                      storeProductInfo(data);
-                    }
+//                    for (var idx in result) {
+//                        var p = result[idx];
+//
+//                        var data = [p.id, p.productName, p.productPrice, p.productStartTime,
+//                            p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
+////                      storeProductInfo(data);
+//                    }
 
 ////                     setTimeout(function () {
 //                     var dateStr = new Date().toString();
