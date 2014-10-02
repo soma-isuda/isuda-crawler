@@ -13,7 +13,7 @@ var util = require('./modules/util');
 var createPhantom = function (pd){
     phantom.create(function (ph) {
         ph.createPage(function (page) {
-//            page.viewportSize = { width: 1920, height: 1080 };  //얘는 아예 안먹음..ㅡㅡ.
+            page.set('viewportSize', {width:720,height:1080});
             console.log('start opeining page');
 
             //전처리
@@ -54,7 +54,7 @@ var createPhantom = function (pd){
     });
 };
 
-createPhantom({ id : 'CJ201409290720N8_200', productPgURL: 'http://mw.cjmall.com/m/prd/detail_cate.jsp?app_cd=PDA&item_cd=30185482&pic=TALI02',
+createPhantom({ id : 'CJ_TEST2', productPgURL: 'http://mw.cjmall.com/m/prd/detail_cate.jsp?app_cd=PDA&item_cd=30185482&pic=TALI02',
     providerId: 'CJ' });
 
 // http://www.nsmall.com/jsp/item/itemview.jsp?good_id=14431720
