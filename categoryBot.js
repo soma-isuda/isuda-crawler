@@ -46,8 +46,9 @@ var createPhantom = function (pdEle) {
         });
     });
 };
-
-var whereClause = ' where providerId = "CJ"';
+var args = process.argv.slice(2);
+var whereClause = ' where providerId = "' + args + '" ';
+//whereClause = '';
 excuteBot(whereClause);
 
 function openNaverShoppingPage(page, ph, pdNameId){
@@ -60,9 +61,15 @@ function openNaverShoppingPage(page, ph, pdNameId){
 
         if(status == 'success'){
             page.evaluate(function(){
-
-                var cateArr = $('._product_list').first().find('.info .depth a');
                 var data = [];
+                if($('._product_list') == null){
+                    data.push('');
+                    data.push('');
+                    return data;
+                }
+                var cateArr = $('._product_list').first().find('.info .depth a');
+
+
                 if(cateArr[0] != undefined) {
                     data.push(cateArr[0].text);
                     data.push(cateArr[1].text);
@@ -81,9 +88,6 @@ function openNaverShoppingPage(page, ph, pdNameId){
                     if (err) console.error('err', err);
                     ph.exit();
                 });
-
-                ph.exit();
-
             });
         }else{
             console.log('fail....try again TT');
