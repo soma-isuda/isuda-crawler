@@ -204,20 +204,23 @@ exports.evaluateGSPage = function (page, ph) {
 exports.evaluateHMPage = function (page, ph) {
     page.evaluate(function () {
 
-            eval('javascript:showTable()');
-
-            return  document.title;
+            eval('javascript:showTable()'); //편성표로 이동
+            eval(
+                'setTimeout(function () { window.scrollTo(0, 2000); }, 2000)'
+                //로딩 후 스크롤을 이동해 실데이터들을 불러온다. 이 웹페이지가 모바일 페이지에서 스크롤을 내려야 데이터가 불러와지는 구조이다.
+            );
         },
-        function (result) {
+        function () {
             console.log('first evaluate');
 
             //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
             setTimeout(function () {
                 console.log('going second evaluate');
                 secondEvaluate();
-            }, 3000);   //render 함수로 확인해본 결과 2초면 될 듯
+            }, 5000);   //render 함수로 확인해본 결과 2초면 될 듯
 
             function secondEvaluate() { //홈쇼핑 편성표를 불러오는 것까지 성공.
+
                 page.evaluate(function () {
 
                     var util = {
@@ -245,12 +248,13 @@ exports.evaluateHMPage = function (page, ph) {
 
                         var eleArr = $('#onair_list .goods_list .large_img a');
                         var dateStr = $('.btn_date #today').first().text();
-                        var timeArr = $('.live_time p');
+                        var timeArr = $('#onair_list .live_time p');
                         // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                         // 만드는 정보 : id, providerId
 
                         var idx;
                         for (idx = 0; idx < eleArr.length; idx++) {
+
                             var ele = $(eleArr[idx]);
                             var productInfo = {};
 
@@ -264,9 +268,7 @@ exports.evaluateHMPage = function (page, ph) {
 
                             startTime = cDateStr + startTime.substr(0, 2) + startTime.substr(3, 4); //201409290100
 
-                            if (startTime == undefined) {
-                                continue;
-                            }
+
 
 
                             productInfo.providerId = 'HM';
@@ -281,13 +283,13 @@ exports.evaluateHMPage = function (page, ph) {
                             productInfo.productEndTime = util.toDateTime(endTime);
 
                             //TODO(must): 'undefined' is not a function (evaluating 'ele.find('.goods_dsc')')
-                            //jQuery 버전?...
-                            productInfo.productName = util.toCleanName(ele.find('.goods_dsc'));
+
+                            productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
 
                             var priceStr = ele.find('.price2').text().replace('원','');
                             productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
 
-                            productInfo.productPgURL = 'http://m.gsshop.com' + ele.find('a').first().attr('href');
+                            productInfo.productPgURL = 'http://www.hyundaihmall.com/' + ele.attr('href');
 
                             productInfo.productImgURL = ele.find('.goods_img img').attr('src');
 
@@ -300,7 +302,9 @@ exports.evaluateHMPage = function (page, ph) {
 
                     var productInfoArr = [];
                     productInfoArr = getData();
-
+                    productInfoArr.pop();
+                    productInfoArr.pop();
+                    //웹사이트에서 처음 로딩할 때 데이터 2개를 보여주므로 그게 누적되어있다. 그 2개 제거
 
                     return productInfoArr;
 
@@ -313,15 +317,15 @@ exports.evaluateHMPage = function (page, ph) {
 
                         var data = [p.id, p.productName, p.productPrice, p.productStartTime,
                             p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-//                      storeProductInfo(data);
+                      storeProductInfo(data);
                     }
 
-//                     setTimeout(function () {
+////                     setTimeout(function () {
 //                     var dateStr = new Date().toString();
 //                     page.render('../crawling_screenshots/hd ' + dateStr + '.jpeg');
 //                     console.log('saving successed');
 //                     ph.exit();
-//                     }, 2000);    //1초는 로딩 중.
+////                     }, 2000);    //1초는 로딩 중.
 
 
                 });
