@@ -90,7 +90,7 @@ exports.evaluateCJPage = function (page, ph) {
 };
 
 function storeProductInfo(data) {
-    model.insertProductInfo(data, function (err, results) {
+    model.insertProductInfo(data, function (err) {
         if (err) console.error('err', err);
     });
 }
@@ -474,6 +474,34 @@ exports.evaluateLHPage = function (page, ph) {
                                 removedTagStr = str.replace(str.slice(first, second + 1), '');
                                 after = removedTagStr.replace(/\t/g, '').replace(/\n/g, '');
                                 return after;
+                            },
+                            toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                                var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                                var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+
+                                tmr.setDate(today.getDate()+1);
+                                tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+
+                                console.log('today', today);
+
+                                console.log('today.getDate()', today.getDate());
+
+                                console.log('tomorrow', tmr);
+
+                                console.log('year', tmr.getFullYear());
+                                console.log('month', tmr.getMonth()+1);
+                                console.log('date', tmr.getDate());
+                                console.log('hours', tmr.getHours());
+                                console.log('minutes', tmr.getMinutes());
+                                var timeStr = ''+tmr.getFullYear()
+                                    +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                                    +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                                    +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                                    +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                               return timeStr;
                             }
                         };
 
@@ -481,10 +509,10 @@ exports.evaluateLHPage = function (page, ph) {
                         function getData() {
                             var productInfoArr = [];
                             var frameArr = $('.onAirPrdLst');
-                            var dateStr = $('#selDate').text(); //10월 20일 (목)
+                            var dateStr = $('#selDate').text(); //10월 02일 (목)
 
                             // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                            var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 5);  //20140929
+                            var cDateStr = new Date().getFullYear() + dateStr.substring(0, 2) + dateStr.substring(4, 6);  //20140929
 
                             // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                             // 만드는 정보 : id, providerId
@@ -494,15 +522,20 @@ exports.evaluateLHPage = function (page, ph) {
                                 var productInfo = {};
                                 var frameEle = $(frameArr[idx]);  //main frame
 
-                                var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //01:00
-                                var startTime = cDateStr + timeArr[0]; //201409290100
+                                var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
+                                var startTime = cDateStr + timeArr[0]; //201410020820
 
                                 productInfo.providerId = 'LH';
                                 productInfo.id = productInfo.providerId + startTime ;
 
                                 productInfo.productStartTime = util.toDateTime(startTime);
 
-                                var endTime = cDateStr.slice(0, 6) +timeArr[1] ; //201409300100
+                                var endTime = cDateStr + timeArr[1] ; //201409300100
+
+                                if(idx == frameArr.length-1){   //마지막 날짜면
+                                    endTime = util.toTomorrow(cDateStr, timeArr[1]);
+                                }
+
                                 productInfo.productEndTime = util.toDateTime(endTime);
 
                                 var ele = frameEle.find('.mainlist');
@@ -512,12 +545,11 @@ exports.evaluateLHPage = function (page, ph) {
                                 var priceStr = ele.find('.price').text().replace(/,|원/g,'');   //71,910원 --> 71910
                                 productInfo.productPrice = parseInt(priceStr);
 
-                                var pdURLstr = ele.find('.goods_info a').attr('href');
-                                productInfo.productPgURL = 'http://www.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdURLstr;
+                                var pdURLStr = ele.find('.goods_info a').attr('href');
+                                var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
+                                productInfo.productPgURL = 'http://www.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
 
                                 productInfo.productImgURL = ele.find('img').attr('src');
-
-
 
                                 productInfoArr.push(productInfo);
                             }
@@ -526,8 +558,7 @@ exports.evaluateLHPage = function (page, ph) {
                         }
 
                         var productInfoArr = [];
-//                        productInfoArr = getData();
-
+                        productInfoArr = getData();
 
                         return productInfoArr;
 
@@ -535,22 +566,13 @@ exports.evaluateLHPage = function (page, ph) {
 
                         console.log('second evaluate - result', result);
 
-//                        for (var idx in result) {
-//                            var p = result[idx];
-//
-//                            var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-//                                p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-////                      storeProductInfo(data);
-//                        }
+                        for (var idx in result) {
+                            var p = result[idx];
 
-//                     setTimeout(function () {
-//                     var dateStr = new Date().toString();
-//                     page.render('../crawling_screenshots/hd ' + dateStr + '.jpeg');
-//                     console.log('saving successed');
-//                     ph.exit();
-//                     }, 2000);    //1초는 로딩 중.
-
-
+                            var data = [p.id, p.productName, p.productPrice, p.productStartTime,
+                                p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
+                            storeProductInfo(data);
+                        }
                     });
 
                 });
