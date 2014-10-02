@@ -200,6 +200,7 @@ exports.evaluateGSPage = function (page, ph) {
 };
 
 //TODO(must): 현대 홈쇼핑 -- 페이지 새롭게 로딩 후 문제점 때문에 일단 보류.. 아 노답이다.. 콜백이고 뭐고 안됌.. ==> 되게함^^..
+//TODO(done) : 끝나는 시간 날짜 예외처리 완료
 //evaluate 안에서 타이머도 안먹고..비동기로 막 실행되는 것 같은데 콜백도 딱히 효과없고..
 exports.evaluateHMPage = function (page, ph) {
     page.evaluate(function () {
@@ -336,13 +337,13 @@ exports.evaluateHMPage = function (page, ph) {
 
                     console.log('second evaluate - result', result);
 
-//                    for (var idx in result) {
-//                        var p = result[idx];
-//
-//                        var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-//                            p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-////                      storeProductInfo(data);
-//                    }
+                    for (var idx in result) {
+                        var p = result[idx];
+
+                        var data = [p.id, p.productName, p.productPrice, p.productStartTime,
+                            p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
+                      storeProductInfo(data);
+                    }
 
 ////                     setTimeout(function () {
 //                     var dateStr = new Date().toString();
@@ -374,6 +375,23 @@ exports.evaluateHSPage = function (page, ph) {
                     removedTagStr = str.replace(str.slice(first, second + 1), '');
                     after = removedTagStr.replace(/\t/g,'').replace(/\n/g,'');
                     return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
                 }
             };
 
@@ -408,18 +426,13 @@ exports.evaluateHSPage = function (page, ph) {
 //                        endTime = cDateStr.slice(0, 6) + (parseInt(dateStr.substr(3, 5))+1) + '0100'; //201409300100
 //                    }
 
-                    if(idx == frameArr.length - 1){
-                        endTime = cDateStr.slice(0, 6) + (parseInt(cDateStr.substr(6, 7))+1) + '0100';
+                    if(idx == frameArr.length-1){   //마지막 날짜면
+                        endTime = util.toTomorrow(cDateStr, endTime.substr(0, 2) + endTime.substr(3, 4));
                     }else{
                         endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 4);
                     }
 
 
-
-
-                    if (startTime == undefined) {
-                        continue;
-                    }
 
 
                     productInfo.providerId = 'HS';
@@ -432,7 +445,7 @@ exports.evaluateHSPage = function (page, ph) {
 
                     productInfo.productName = util.toCleanName(ele.find('.text').text());
 
-                    var priceStr = ele.find('.price strong').text().replace('원', '');
+                    var priceStr = ele.find('.price strong').first().text().replace('원', '');
                     productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
 
                     productInfo.productPgURL = 'http://m.hnsmall.com' + ele.find('.text').attr('onclick').replace('goPage','').substring(2).replace('\')','').replace(/\\/g,'/');
