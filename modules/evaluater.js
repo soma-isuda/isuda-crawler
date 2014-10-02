@@ -587,7 +587,7 @@ exports.evaluateLHPage = function (page, ph) {
 
                                 var pdURLStr = ele.find('.goods_info a').attr('href');
                                 var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
-                                productInfo.productPgURL = 'http://www.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
+                                productInfo.productPgURL = 'http://m.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
 
                                 productInfo.productImgURL = ele.find('img').attr('src');
 
