@@ -112,6 +112,23 @@ exports.evaluateGSPage = function (page, ph) {
                     removedTagStr = str.replace(str.slice(first, second + 1), '');
                     after = removedTagStr.replace(/\t/g,'').replace(/\n/g,'');
                     return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
                 }
             };
 
@@ -123,7 +140,7 @@ exports.evaluateGSPage = function (page, ph) {
                 var dateStr = $('.tvshopping_date_on .on').text();
 
                 // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 5);  //20140929
+                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
 
                 // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                 // 만드는 정보 : id, providerId
@@ -136,27 +153,20 @@ exports.evaluateGSPage = function (page, ph) {
                     var startTime = frameEle.find('.t_tv_time strong').text();  //01:00
                     startTime = cDateStr + startTime.substr(0, 2) + startTime.substr(3, 4); //201409290100
 
-                    if (startTime == undefined) {
-                        continue;
-                    }
-
-
                     productInfo.providerId = 'GS';
                     productInfo.id = productInfo.providerId + startTime ;
 
                     productInfo.productStartTime = util.toDateTime(startTime);
 
+                    var endTime = $(frameArr[idx + 1]).find('.t_tv_time strong').text();  //01:00
 
-                    if(idx == frameArr.length-1) {
-                        var endTime = '01:00';  //언제나 다음날 한 시에 끝남.
-                        endTime = cDateStr.slice(0, 6) + (parseInt(dateStr.substr(3, 5))+1) + '0100'; //201409300100
-                        productInfo.productEndTime = util.toDateTime(endTime);
-                    }else{  //방송이 끝나는 시간 = 다음 방송의 시작
-                        var endTime = $(frameArr[idx + 1]).find('.t_tv_time strong').text();  //01:00
-                        endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 4); //201409290100
-                        productInfo.productEndTime = util.toDateTime(endTime);
-
+                    if(idx == frameArr.length-1){   //마지막 날짜면
+                        endTime = util.toTomorrow(cDateStr, '0100');
+                    }else{
+                        endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 2);
                     }
+
+                    productInfo.productEndTime = util.toDateTime(endTime);
 
                     var ele = frameEle.find('.listwrap');
 
@@ -403,7 +413,7 @@ exports.evaluateHSPage = function (page, ph) {
                 var dateStr = $('#currentDate').text().replace('일', ''); //09월 29일
 
                 // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(4, 6);  //20140929
+                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(4, 2);  //20140929
 
                 // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                 // 만드는 정보 : id, providerId
@@ -418,7 +428,7 @@ exports.evaluateHSPage = function (page, ph) {
                     var startTime = strArr[0];   //19:35
                     var endTime = strArr[2];     //21:45
 
-                    startTime = cDateStr + startTime.substr(0, 2) + startTime.substr(3, 4); //201409290100
+                    startTime = cDateStr + startTime.substr(0, 2) + startTime.substr(3, 2); //201409290100
 
                     //TODO : 시간 비교 알고리즘
 //                    var endTime = '01:00';  //언제나 다음날 한 시에 끝남.
@@ -427,9 +437,9 @@ exports.evaluateHSPage = function (page, ph) {
 //                    }
 
                     if(idx == frameArr.length-1){   //마지막 날짜면
-                        endTime = util.toTomorrow(cDateStr, endTime.substr(0, 2) + endTime.substr(3, 4));
+                        endTime = util.toTomorrow(cDateStr, endTime.substr(0, 2) + endTime.substr(3, 2));
                     }else{
-                        endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 4);
+                        endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 2);
                     }
 
 
