@@ -216,10 +216,10 @@ exports.evaluateHMPage = function (page, ph) {
             //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
             setTimeout(function () {
                 console.log('going second evaluate');
-                secondEvaluate();
+                secondJob();
             }, 5000);   //render 함수로 확인해본 결과 2초면 될 듯
 
-            function secondEvaluate() { //홈쇼핑 편성표를 불러오는 것까지 성공.
+            function secondJob() { //홈쇼핑 편성표를 불러오는 것까지 성공.
 
                 page.evaluate(function () {
 
@@ -238,6 +238,23 @@ exports.evaluateHMPage = function (page, ph) {
                             removedTagStr = str.replace(str.slice(first, second + 1), '');
                             after = removedTagStr.replace(/\t/g,'').replace(/\n/g,'');
                             return after;
+                        },
+                        toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                            var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                            var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+
+                            tmr.setDate(today.getDate()+1);
+                            tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+
+                            var timeStr = ''+tmr.getFullYear()
+                                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                                +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                                +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                            return timeStr;
                         }
                     };
 
@@ -251,8 +268,9 @@ exports.evaluateHMPage = function (page, ph) {
                         var timeArr = $('#onair_list .live_time p');
                         // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                         // 만드는 정보 : id, providerId
-
+                        var isTomorrow = false;
                         var idx;
+                        //순서대로인데!..
                         for (idx = 0; idx < eleArr.length; idx++) {
 
                             var ele = $(eleArr[idx]);
@@ -260,27 +278,39 @@ exports.evaluateHMPage = function (page, ph) {
 
                             var timeStr = timeArr[idx].innerHTML; //19:35 ~ 21:45 주방가전/주방용품
                             var strArr = timeStr.split(' ');
-                            var startTime = strArr[0];   //19:35
-                            var endTime = strArr[2];     //21:45
+                            var startTime = strArr[0].replace(':','');   //1935
+                            var endTime = strArr[2].replace(':','');     //2145
+                            productInfo.timeStr = timeStr;
 
                             // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                            var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 5);  //20140929
+                            var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
 
-                            startTime = cDateStr + startTime.substr(0, 2) + startTime.substr(3, 4); //201409290100
+                            //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                            var startDateTime;
+                            var endDateTime;
 
+                            if(  parseInt(endTime.substr(0,2)) < parseInt(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                                isTomorrow = true;
+                            }else{
+                                isTomorrow = false;
+                            }
+                            productInfo.endTime = endTime;
+                            productInfo.startTime = startTime;
+                            productInfo.eT = parseInt('0815'.substr(0,2));  //TODO(OMG..) : 하..  이게 0이라니 ... 노답이다..
+                            productInfo.isTomorrow = isTomorrow;
+                            productInfo.index = idx;
 
+                            if(isTomorrow){
+                                endDateTime = util.toTomorrow(cDateStr, endTime);
+                                startDateTime = util.toTomorrow(cDateStr, startTime);
+                            }else{
+                                endDateTime = cDateStr + endTime;
+                                startDateTime = cDateStr + startTime;
 
+                            }
 
-                            productInfo.providerId = 'HM';
-                            productInfo.id = productInfo.providerId + startTime;
-
-                            productInfo.productStartTime = util.toDateTime(startTime);
-
-//                    live_time flexSb
-
-                            //TODO(must): 마지막 날짜 예외 처리 필요 !!
-                            endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 4); //201409290100
-                            productInfo.productEndTime = util.toDateTime(endTime);
+                            productInfo.productStartTime = util.toDateTime(startDateTime);
+                            productInfo.productEndTime = util.toDateTime(endDateTime);
 
                             //TODO(must): 'undefined' is not a function (evaluating 'ele.find('.goods_dsc')')
 
@@ -292,7 +322,8 @@ exports.evaluateHMPage = function (page, ph) {
                             productInfo.productPgURL = 'http://www.hyundaihmall.com/' + ele.attr('href');
 
                             productInfo.productImgURL = ele.find('.goods_img img').attr('src');
-
+                            productInfo.providerId = 'HM';
+                            productInfo.id = productInfo.providerId + startDateTime;
 
                             productInfoArr.push(productInfo);
                         }
@@ -303,7 +334,7 @@ exports.evaluateHMPage = function (page, ph) {
                     var productInfoArr = [];
                     productInfoArr = getData();
                     productInfoArr.pop();
-                    productInfoArr.pop();
+                    productInfoArr.pop();   //문제생기는거 아니야??
                     //웹사이트에서 처음 로딩할 때 데이터 2개를 보여주므로 그게 누적되어있다. 그 2개 제거
 
                     return productInfoArr;
@@ -317,7 +348,7 @@ exports.evaluateHMPage = function (page, ph) {
 
                         var data = [p.id, p.productName, p.productPrice, p.productStartTime,
                             p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                      storeProductInfo(data);
+//                      storeProductInfo(data);
                     }
 
 ////                     setTimeout(function () {
@@ -443,7 +474,7 @@ exports.evaluateHSPage = function (page, ph) {
         });
 };
 
-//TODO(must) ///////////////////////////////////////////////////
+//TODO(done) : 끝나는 시간 날짜 예외처리 완료
 exports.evaluateLHPage = function (page, ph) {
     page.evaluate(function () {
             var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
@@ -455,10 +486,10 @@ exports.evaluateLHPage = function (page, ph) {
             //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
             setTimeout(function () {
                 console.log('going second evaluate');
-                secondEvaluate(result);
+                secondJob(result);
             }, 3000);   //render 함수로 확인해본 결과 2초면 될 듯
 
-            function secondEvaluate(url) { //홈쇼핑 편성표를 불러오는 것까지 성공.
+            function secondJob(url) { //홈쇼핑 편성표를 불러오는 것까지 성공.
                 page.open(url, function (status) {
                     page.evaluate(function () {
 
@@ -489,17 +520,6 @@ exports.evaluateLHPage = function (page, ph) {
                                 tmr.setDate(today.getDate()+1);
                                 tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
 
-                                console.log('today', today);
-
-                                console.log('today.getDate()', today.getDate());
-
-                                console.log('tomorrow', tmr);
-
-                                console.log('year', tmr.getFullYear());
-                                console.log('month', tmr.getMonth()+1);
-                                console.log('date', tmr.getDate());
-                                console.log('hours', tmr.getHours());
-                                console.log('minutes', tmr.getMinutes());
                                 var timeStr = ''+tmr.getFullYear()
                                     +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
                                     +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
