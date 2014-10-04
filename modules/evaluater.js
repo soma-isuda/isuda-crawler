@@ -502,19 +502,18 @@ exports.evaluateHSPage = function (page, ph) {
 exports.evaluateLHPage = function (page, ph) {
     page.evaluate(function () {
             var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
-            return  url;
+            eval('window.location = "' + url + '"');
         },
-        function (result) {
+        function () {
             console.log('first evaluate');
-            console.log('url', result);
+
             //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
             setTimeout(function () {
                 console.log('going second evaluate');
-                secondJob(result);
-            }, 3000);   //render 함수로 확인해본 결과 2초면 될 듯
+                secondJob();
+            }, 3000);   //실험상 3초
 
-            function secondJob(url) { //홈쇼핑 편성표를 불러오는 것까지 성공.
-                page.open(url, function (status) {
+            function secondJob() { //홈쇼핑 편성표를 불러오는 것까지 성공.
                     page.evaluate(function () {
 
                         var util = {
@@ -611,11 +610,10 @@ exports.evaluateLHPage = function (page, ph) {
                         return productInfoArr;
 
                     }, function (result) {
-
+//                        console.log(result);
                         storeResult(result);
                     });
 
-                });
             }
         });
 };
