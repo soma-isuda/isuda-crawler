@@ -453,7 +453,7 @@ exports.evaluateHSPage = function (page, ph) {
 
                     var ele = frameEle.find('.product');
 
-                    productInfo.productName = util.toCleanName(ele.find('.text').text());
+                    productInfo.productName = util.toCleanName(ele.find('.text').first().text());
 
                     var priceStr = ele.find('.price strong').first().text().replace('원', '');
                     productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
