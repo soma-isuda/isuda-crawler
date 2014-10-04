@@ -64,7 +64,7 @@ exports.selectProductName_Id = function(callback, whereClause) {
 exports.selectProductURL_Id = function(callback) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
-        conn.query('select id, productPgURL, providerId from productInfo where id = "HS201409290720N6"', function(err, result) {
+        conn.query('select id, productPgURL, providerId from productInfo where id = "LH201410030400"', function(err, result) {
             console.log('selectProductURL_Id result');
             callback(err, result);
         });
