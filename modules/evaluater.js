@@ -10,6 +10,8 @@ var CHECK_RESULT = {
     NOTHING : 2
 };
 
+//TODO(more) $('.date_area li a')[6].click() //내일
+//TODO(more) $('.date_area li a')[7].click() //모래
 exports.evaluateCJPage = function (page, ph) {
     page.evaluate(function () {
             //evaluate를 하면 nodejs와 별개인 phantomjs
@@ -80,6 +82,7 @@ exports.evaluateCJPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) { //한 편성표 페이지에서 크롤링해온 데이터들
+//            console.log(result);
             storeResult(result);
         });
 };
@@ -111,7 +114,7 @@ function storeResult(result){
         })(idx);
     }
 }
-// TODO : 아이디가 같고, 가격이 같을 때에는 insert, 아이디가 같고, 가격이 다르면 update
+// 아이디가 같고, 가격이 같을 때에는 insert, 아이디가 같고, 가격이 다르면 update
 function insertProductInfo(data) {
     model.insertProductInfo(data, function (err) {
         if (err) console.error('err', err);
@@ -139,6 +142,7 @@ function checkNewProduct(providerId, productId, productPrice, callback){
     });
 }
 
+//TODO(more) window.location = "http://m.gsshop.com/" + $('.next').attr('href') //다음 날
 exports.evaluateGSPage = function (page, ph) {
     page.evaluate(function () {
             var util = {
@@ -242,9 +246,8 @@ exports.evaluateGSPage = function (page, ph) {
         });
 };
 
-//TODO(must): 현대 홈쇼핑 -- 페이지 새롭게 로딩 후 문제점 때문에 일단 보류.. 아 노답이다.. 콜백이고 뭐고 안됌.. ==> 되게함^^..
-//TODO(done) : 끝나는 시간 날짜 예외처리 완료
 //evaluate 안에서 타이머도 안먹고..비동기로 막 실행되는 것 같은데 콜백도 딱히 효과없고..
+//TODO(more) javascript:goDateView(20141006) //날짜를 넣어서 이동
 exports.evaluateHMPage = function (page, ph) {
     page.evaluate(function () {
 
@@ -384,6 +387,7 @@ exports.evaluateHMPage = function (page, ph) {
         });
 };
 
+//TODO(more) javascript:changeCalendarDay(20141006) // 날짜를 넣어서 이동
 exports.evaluateHSPage = function (page, ph) {
     page.evaluate(function () {
             var util = {
@@ -493,7 +497,8 @@ exports.evaluateHSPage = function (page, ph) {
         });
 };
 
-//TODO(done) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시) --> 크롤링 스케줄링으로 해결하기
+//TODO(more) fn_goPgmDayList('20141007') //날짜를 넣어서 이동
+//TODO(must) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시) --> 크롤링 스케줄링으로 해결하기
 exports.evaluateLHPage = function (page, ph) {
     page.evaluate(function () {
             var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
@@ -615,9 +620,11 @@ exports.evaluateLHPage = function (page, ph) {
         });
 };
 
+//TODO(more) http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=20141006 //날짜를 넣어서 페이지 이동
 //TODO(must) : 시간에 따라 편성표가 어떻게 변하는 지 확인해봐야 함.
 exports.evaluateNSPage = function (page, ph) {
     page.evaluate(function () {
+            eval('window.location = "http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=20141006"');
             var util = {
                 toDateTime: function (str) {
                     return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
@@ -728,6 +735,13 @@ exports.evaluateNSPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) {
-            storeResult(result);
+//            storeResult(result);
+            (function(){
+                setTimeout(function () {
+                    page.render('test.jpeg');
+                    console.log('saved');
+                }, 5000);
+            })();
+
         });
 };
