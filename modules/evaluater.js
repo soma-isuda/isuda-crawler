@@ -170,7 +170,7 @@ exports.evaluateGSPage = function (page, ph) {
 
                     var ele = frameEle.find('.listwrap');
 
-                    productInfo.productName = util.toCleanName(ele.find('.pro_tit').text());
+                    productInfo.productName = util.toCleanName(ele.find('.pro_tit').first().text());
 
                     var priceStr = ele.find('.pro_price .low_num').text();
                     productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
@@ -490,7 +490,7 @@ exports.evaluateHSPage = function (page, ph) {
         });
 };
 
-//TODO(done) : 끝나는 시간 날짜 예외처리 완료
+//TODO(done) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시) --> 크롤링 스케줄링으로 해결하기
 exports.evaluateLHPage = function (page, ph) {
     page.evaluate(function () {
             var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
