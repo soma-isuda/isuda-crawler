@@ -4,6 +4,12 @@
 
 var model = require('./model');
 
+var CHECK_RESULT = {
+    INSERT : 0,
+    UPDATE : 1,
+    NOTHING : 2
+};
+
 exports.evaluateCJPage = function (page, ph) {
     page.evaluate(function () {
             //evaluate를 하면 nodejs와 별개인 phantomjs
@@ -73,25 +79,63 @@ exports.evaluateCJPage = function (page, ph) {
 
             return  productInfoArr;
         },
-        function (result) {
-            ph.exit();
-//            console.log(result);
-            for (var idx in result) {
-                var p = result[idx];
-//                console.log(p);
-
-                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                console.log(data);
-
-                storeProductInfo(data);
-            }
+        function (result) { //한 편성표 페이지에서 크롤링해온 데이터들
+            storeResult(result);
         });
 };
 
-function storeProductInfo(data) {
+function storeResult(result){
+    for (var idx in result) {
+        (function(idx) {
+            setTimeout(
+                function() {
+                    var p = result[idx];
+                    checkNewProduct(p.providerId, p.id, p.productPrice, function (check) {
+                        console.log(p.id, Object.keys(CHECK_RESULT)[check], p.productPrice);
+                        switch (check){
+                            case CHECK_RESULT.INSERT :
+                                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
+                                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
+                                insertProductInfo(data);
+                                break;
+                            case CHECK_RESULT.UPDATE :
+                                var data = [p.productName, p.productPrice, p.productStartTime,
+                                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL, p.id];
+                                updateProductInfo(data);
+                                break;
+                            case CHECK_RESULT.NOTHING :
+                                break;
+                        }
+                    });
+                }, 0);
+        })(idx);
+    }
+}
+// TODO : 아이디가 같고, 가격이 같을 때에는 insert, 아이디가 같고, 가격이 다르면 update
+function insertProductInfo(data) {
     model.insertProductInfo(data, function (err) {
         if (err) console.error('err', err);
+    });
+}
+function updateProductInfo(data){
+    model.updateProductInfo(data, function(err){
+        if (err) console.error('err', err);
+    });
+}
+
+function checkNewProduct(providerId, productId, productPrice, callback){
+    model.selectPriceById([providerId, productId], function (err, result) { //해당 id가 테이블에 존재하는 지 확인
+    // 존재? [ { productPrice: 33900 } ] : []
+        if (err) console.error('err', err);
+        if(result[0] == undefined){  //아이디가 존재하지 않음 ==> INSERT
+            callback(CHECK_RESULT.INSERT);
+        }else{
+            if(result[0].productPrice == productPrice){
+                callback(CHECK_RESULT.NOTHING); //가격이 같음 ==> NOTHING
+            }else{
+                callback(CHECK_RESULT.UPDATE);  //가격이 다름 ==> UPDATE
+            }
+        }
     });
 }
 
@@ -194,18 +238,7 @@ exports.evaluateGSPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) {
-            ph.exit();
-            console.log(result);
-            for (var idx in result) {
-                var p = result[idx];
-//                console.log(p);
-
-                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                console.log(data);
-
-                storeProductInfo(data);
-            }
+            storeResult(result);
         });
 };
 
@@ -344,25 +377,8 @@ exports.evaluateHMPage = function (page, ph) {
                     return productInfoArr;
 
                 }, function (result) {
-
-                    console.log('second evaluate - result', result);
-
-                    for (var idx in result) {
-                        var p = result[idx];
-
-                        var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                            p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                      storeProductInfo(data);
-                    }
-
-////                     setTimeout(function () {
-//                     var dateStr = new Date().toString();
-//                     page.render('../crawling_screenshots/hd ' + dateStr + '.jpeg');
-//                     console.log('saving successed');
-//                     ph.exit();
-////                     }, 2000);    //1초는 로딩 중.
-
-
+                    console.log('second evaluate');
+                    storeResult(result);
                 });
             }
         });
@@ -462,8 +478,6 @@ exports.evaluateHSPage = function (page, ph) {
 
                     productInfo.productImgURL = ele.find('.img img').attr('src');
 
-
-
                     productInfoArr.push(productInfo);
                 }
 
@@ -475,18 +489,7 @@ exports.evaluateHSPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) {
-            ph.exit();
-            console.log(result);
-            for (var idx in result) {
-                var p = result[idx];
-//                console.log(p);
-
-                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                console.log(data);
-
-                storeProductInfo(data);
-            }
+            storeResult(result);
         });
 };
 
@@ -604,15 +607,7 @@ exports.evaluateLHPage = function (page, ph) {
 
                     }, function (result) {
 
-                        console.log('second evaluate - result', result);
-
-                        for (var idx in result) {
-                            var p = result[idx];
-
-                            var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                                p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                            storeProductInfo(data);
-                        }
+                        storeResult(result);
                     });
 
                 });
@@ -733,16 +728,6 @@ exports.evaluateNSPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) {
-
-            console.log(result);
-            for (var idx in result) {
-                var p = result[idx];
-
-                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                console.log(data);
-
-                storeProductInfo(data);
-            }
+            storeResult(result);
         });
 };

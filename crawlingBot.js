@@ -21,7 +21,6 @@ var chSchedule = {
 var createPhantom = function (channel){
     phantom.create(function (ph) {
         ph.createPage(function (page) {
-
             if(channel == 'HM')
                 util.setUserAgent(page);
 //            page.set('scrollPosition', {top:800,left:0});

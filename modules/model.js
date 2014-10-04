@@ -36,6 +36,44 @@ exports.insertProductInfo = function(data, callback) {
     });
 };
 
+exports.updateProductInfo = function(data, callback) {
+    db.pool.acquire(function(err, conn) {
+        if(err) console.error('err', err);
+        var Query = 'UPDATE productInfo '
+            +  'SET productName = ?, productPrice = ?, productStartTime = ?, productEndTime = ?, providerId = ?, productPgURL = ?, productImgURL = ?, secondId = -1 '
+            + ' WHERE id = ?';
+        conn.query(Query, data, function(err, result) {
+            console.log('updateProductInfo result', result);
+            callback(err, result);
+        });
+        db.pool.release(conn);
+    });
+};
+
+exports.selectPriceById = function(data, callback) {
+    db.pool.acquire(function(err, conn) {
+        if(err) console.error('err', err);
+        var Query = 'select productPrice from productInfo WHERE providerId = ? AND id = ? ';
+        conn.query(Query, data, function(err, result) {
+//            console.log('selectProductInfoPrice_Id result', result);
+            callback(err, result);
+        });
+        db.pool.release(conn);
+    });
+};
+
+//exports.selectPriceById_Price = function(data, callback) {
+//    db.pool.acquire(function(err, conn) {
+//        if(err) console.error('err', err);  //해당 가격, 아이디가 같다면, 가격 반환 // 다르다면 []
+//        var Query = 'select productPrice from productInfo WHERE productEndTime > now() and providerId = ? AND id = ? and productPrice = ? ';
+//        conn.query(Query, data, function(err, result) {
+////            console.log(data[1], 'selectPriceById_Price result', result);
+//            callback(err, result);
+//        });
+//        db.pool.release(conn);
+//    });
+//};
+
 //TODO: data = [firstCate, secondCate, id]
 exports.updateCategory = function(data, callback) {
     db.pool.acquire(function(err, conn) {
