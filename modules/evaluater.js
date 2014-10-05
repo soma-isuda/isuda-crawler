@@ -794,6 +794,7 @@ exports.evaluateCJPageAhead = function (page, ph) {
         }, 3000);
     });
 };
+
 exports.evaluateCJPageAhead2 = function (page, ph) {
     page.evaluate(function () {
         var cmd = " jQuery('.date_area li a')[7].click() ";
@@ -804,47 +805,334 @@ exports.evaluateCJPageAhead2 = function (page, ph) {
         }, 3000);
     });
 };
-//TODO(error)
+
+
 exports.evaluateHMPageAhead = function (page, ph) {
     page.evaluate(function () {
-        var getDateStrAfter = function (days) {
-            var today = new Date();	//년, 월-1, 일
-            var tmr = new Date();
-            tmr.setDate(today.getDate() + days);
 
-            var timeStr = ''+tmr.getFullYear()
-                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
-                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
-            return timeStr;
-        };
-        var cmd = "javascript:goDateView(" + getDateStrAfter(1) + ")";
-        eval(cmd);
-    }, function () {
-        setTimeout(function () {
-            exports.evaluateHMPage(page, ph);
-        }, 5000);
-    });
+            eval('javascript:showTable()'); //편성표로 이동
+            eval(
+                'setTimeout(function () { window.scrollTo(0, 2000); }, 2000)'
+                //로딩 후 스크롤을 이동해 실데이터들을 불러온다. 이 웹페이지가 모바일 페이지에서 스크롤을 내려야 데이터가 불러와지는 구조이다.
+            );
+        },
+        function () {
+            console.log('first evaluate');
+
+            //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
+            setTimeout(function () {
+                console.log('going second evaluate');
+                secondJob();
+            }, 5000);   //render 함수로 확인해본 결과 2초면 될 듯
+
+
+        });
+
+    function secondJob() {
+        page.evaluate(function () {
+            var getDateStrAfter = function (days) {
+                var today = new Date();	//년, 월-1, 일
+                var tmr = new Date();
+                tmr.setDate(today.getDate() + days);
+
+                var timeStr = ''+tmr.getFullYear()
+                    +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                    +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+                return timeStr;
+            };
+            var cmd = "javascript:goDateView(" + getDateStrAfter(1) + ")";
+            eval(cmd);
+        }, function () {
+            setTimeout(function () {
+                thirdJob();
+            }, 5000);
+        });
+    }
+
+    function thirdJob() { //홈쇼핑 편성표를 불러오는 것까지 성공.
+
+        page.evaluate(function () {
+
+            var util = {
+                toDateTime: function (str) {
+                    return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
+                        + str.substring(8, 10) + ':' + str.substring(10, 12) + ':00';
+                },
+                toCleanName: function (str) {
+                    var removedTagStr;  var after;
+                    var first = str.search(/\[/);
+                    var second = str.search(/\]/);
+                    if (first == -1 || second == -1) {
+                        removedTagStr = str;
+                    }
+                    removedTagStr = str.replace(str.slice(first, second + 1), '');
+                    after = removedTagStr.replace(/\t/g,'').replace(/\n/g,'');
+                    return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
+                }
+            };
+
+
+
+            function getData() {
+                var productInfoArr = [];
+
+                var eleArr = $('#onair_list .goods_list .large_img a');
+                var dateStr = $('.btn_date #today').first().text();
+                var timeArr = $('#onair_list .live_time p');
+                // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
+                // 만드는 정보 : id, providerId
+                var isTomorrow = false;
+                var idx;
+                //순서대로인데!..
+                for (idx = 0; idx < eleArr.length; idx++) {
+
+                    var ele = $(eleArr[idx]);
+                    var productInfo = {};
+
+                    var timeStr = timeArr[idx].innerHTML; //19:35 ~ 21:45 주방가전/주방용품
+                    var strArr = timeStr.split(' ');
+                    var startTime = strArr[0].replace(':','');   //1935
+                    var endTime = strArr[2].replace(':','');     //2145
+
+                    // 크롤링하는 시점의 년도 + 크롤링해온 월 일
+                    var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+
+                    //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                    var startDateTime;
+                    var endDateTime;
+
+                    if(isTomorrow){
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                        startDateTime = util.toTomorrow(cDateStr, startTime);
+                    }else{
+                        endDateTime = cDateStr + endTime;
+                        startDateTime = cDateStr + startTime;
+
+                    }
+
+                    if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                        isTomorrow = true;
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                    }
+
+                    productInfo.productStartTime = util.toDateTime(startDateTime);
+                    productInfo.productEndTime = util.toDateTime(endDateTime);
+
+                    //TODO(must): 'undefined' is not a function (evaluating 'ele.find('.goods_dsc')')
+
+                    productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
+
+                    var priceStr = ele.find('.price2').text().replace('원','');
+                    productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
+
+                    productInfo.productPgURL = 'http://m.hyundaihmall.com' + ele.attr('href');
+
+                    productInfo.productImgURL = ele.find('.goods_img img').attr('src');
+                    productInfo.providerId = 'HM';
+                    productInfo.id = productInfo.providerId + startDateTime;
+
+                    productInfoArr.push(productInfo);
+                }
+
+                return productInfoArr;
+            }
+
+            var productInfoArr = [];
+            productInfoArr = getData();
+            productInfoArr.pop();
+            productInfoArr.pop();   //문제생기는거 아니야??
+            //웹사이트에서 처음 로딩할 때 데이터 2개를 보여주므로 그게 누적되어있다. 그 2개 제거
+
+            return productInfoArr;
+
+        }, function (result) {
+            console.log('second evaluate');
+            ph.exit();
+            storeResult(result);
+        });
+    }
+
+
 };
-//TODO(error)
+
 exports.evaluateHMPageAhead2 = function (page, ph) {
     page.evaluate(function () {
-        var getDateStrAfter = function (days) {
-            var today = new Date();	//년, 월-1, 일
-            var tmr = new Date();
-            tmr.setDate(today.getDate() + days);
 
-            var timeStr = ''+tmr.getFullYear()
-                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
-                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
-            return timeStr;
-        };
-        var cmd = "javascript:goDateView(" + getDateStrAfter(2) + ")";
-        eval(cmd);
-    }, function () {
-        setTimeout(function () {
-            exports.evaluateHMPage(page, ph);
-        }, 5000);
-    });
+            eval('javascript:showTable()'); //편성표로 이동
+            eval(
+                'setTimeout(function () { window.scrollTo(0, 2000); }, 2000)'
+                //로딩 후 스크롤을 이동해 실데이터들을 불러온다. 이 웹페이지가 모바일 페이지에서 스크롤을 내려야 데이터가 불러와지는 구조이다.
+            );
+        },
+        function () {
+            console.log('first evaluate');
+
+            //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
+            setTimeout(function () {
+                console.log('going second evaluate');
+                secondJob();
+            }, 5000);   //render 함수로 확인해본 결과 2초면 될 듯
+
+
+        });
+
+    function secondJob() {
+        page.evaluate(function () {
+            var getDateStrAfter = function (days) {
+                var today = new Date();	//년, 월-1, 일
+                var tmr = new Date();
+                tmr.setDate(today.getDate() + days);
+
+                var timeStr = ''+tmr.getFullYear()
+                    +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                    +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+                return timeStr;
+            };
+            var cmd = "javascript:goDateView(" + getDateStrAfter(2) + ")";
+            eval(cmd);
+        }, function () {
+            setTimeout(function () {
+                thirdJob();
+            }, 5000);
+        });
+    }
+
+    function thirdJob() { //홈쇼핑 편성표를 불러오는 것까지 성공.
+
+        page.evaluate(function () {
+
+            var util = {
+                toDateTime: function (str) {
+                    return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
+                        + str.substring(8, 10) + ':' + str.substring(10, 12) + ':00';
+                },
+                toCleanName: function (str) {
+                    var removedTagStr;  var after;
+                    var first = str.search(/\[/);
+                    var second = str.search(/\]/);
+                    if (first == -1 || second == -1) {
+                        removedTagStr = str;
+                    }
+                    removedTagStr = str.replace(str.slice(first, second + 1), '');
+                    after = removedTagStr.replace(/\t/g,'').replace(/\n/g,'');
+                    return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
+                }
+            };
+
+
+
+            function getData() {
+                var productInfoArr = [];
+
+                var eleArr = $('#onair_list .goods_list .large_img a');
+                var dateStr = $('.btn_date #today').first().text();
+                var timeArr = $('#onair_list .live_time p');
+                // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
+                // 만드는 정보 : id, providerId
+                var isTomorrow = false;
+                var idx;
+                //순서대로인데!..
+                for (idx = 0; idx < eleArr.length; idx++) {
+
+                    var ele = $(eleArr[idx]);
+                    var productInfo = {};
+
+                    var timeStr = timeArr[idx].innerHTML; //19:35 ~ 21:45 주방가전/주방용품
+                    var strArr = timeStr.split(' ');
+                    var startTime = strArr[0].replace(':','');   //1935
+                    var endTime = strArr[2].replace(':','');     //2145
+
+                    // 크롤링하는 시점의 년도 + 크롤링해온 월 일
+                    var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+
+                    //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                    var startDateTime;
+                    var endDateTime;
+
+                    if(isTomorrow){
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                        startDateTime = util.toTomorrow(cDateStr, startTime);
+                    }else{
+                        endDateTime = cDateStr + endTime;
+                        startDateTime = cDateStr + startTime;
+
+                    }
+
+                    if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                        isTomorrow = true;
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                    }
+
+                    productInfo.productStartTime = util.toDateTime(startDateTime);
+                    productInfo.productEndTime = util.toDateTime(endDateTime);
+
+                    //TODO(must): 'undefined' is not a function (evaluating 'ele.find('.goods_dsc')')
+
+                    productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
+
+                    var priceStr = ele.find('.price2').text().replace('원','');
+                    productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
+
+                    productInfo.productPgURL = 'http://m.hyundaihmall.com' + ele.attr('href');
+
+                    productInfo.productImgURL = ele.find('.goods_img img').attr('src');
+                    productInfo.providerId = 'HM';
+                    productInfo.id = productInfo.providerId + startDateTime;
+
+                    productInfoArr.push(productInfo);
+                }
+
+                return productInfoArr;
+            }
+
+            var productInfoArr = [];
+            productInfoArr = getData();
+            productInfoArr.pop();
+            productInfoArr.pop();   //문제생기는거 아니야??
+            //웹사이트에서 처음 로딩할 때 데이터 2개를 보여주므로 그게 누적되어있다. 그 2개 제거
+
+            return productInfoArr;
+
+        }, function (result) {
+            console.log('second evaluate');
+            ph.exit();
+            storeResult(result);
+        });
+    }
 };
 
 exports.evaluateHSPageAhead = function (page, ph) {
@@ -1028,7 +1316,7 @@ exports.evaluateLHPageAhead = function (page, ph) {
     }
 
 };
-)
+
 exports.evaluateLHPageAhead2 = function (page, ph) {
     page.evaluate(function () {
             var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
