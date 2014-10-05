@@ -120,7 +120,7 @@ exports.evaluateCJPage = function (page, ph) {
                     productInfo.productName = util.toCleanName(ele.find('.prname div p').text());
 
                     var priceStr = ele.find('.price strong').text();
-                    productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
+                    productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
 
                     productInfo.productPgURL = 'http://mw.cjmall.com' + ele.find('a').attr('href');
                     productInfo.productImgURL = ele.find('.imgbx img').attr('src');
@@ -168,11 +168,11 @@ exports.evaluateGSPage = function (page, ph) {
 
 //                                var yy_mm_dd = '20140131';	//년월일
 //                                var HH_mm = '2010';	//시간분
-                    var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
-                    var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
 
                     tmr.setDate(today.getDate()+1);
-                    tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
 
                     var timeStr = ''+tmr.getFullYear()
                         +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
@@ -224,7 +224,7 @@ exports.evaluateGSPage = function (page, ph) {
                     productInfo.productName = util.toCleanName(ele.find('.pro_tit').first().text());
 
                     var priceStr = ele.find('.pro_price .low_num').text();
-                    productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
+                    productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
 
                     productInfo.productPgURL = 'http://m.gsshop.com' + ele.find('a').first().attr('href');
 
@@ -294,11 +294,11 @@ exports.evaluateHMPage = function (page, ph) {
 
 //                                var yy_mm_dd = '20140131';	//년월일
 //                                var HH_mm = '2010';	//시간분
-                            var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
-                            var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+                            var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                            var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
 
                             tmr.setDate(today.getDate()+1);
-                            tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+                            tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
 
                             var timeStr = ''+tmr.getFullYear()
                                 +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
@@ -361,7 +361,7 @@ exports.evaluateHMPage = function (page, ph) {
                             productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
 
                             var priceStr = ele.find('.price2').text().replace('원','');
-                            productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
+                            productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
 
                             productInfo.productPgURL = 'http://m.hyundaihmall.com' + ele.attr('href');
 
@@ -415,11 +415,11 @@ exports.evaluateHSPage = function (page, ph) {
 
 //                                var yy_mm_dd = '20140131';	//년월일
 //                                var HH_mm = '2010';	//시간분
-                    var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
-                    var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
 
                     tmr.setDate(today.getDate()+1);
-                    tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
 
                     var timeStr = ''+tmr.getFullYear()
                         +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
@@ -481,7 +481,7 @@ exports.evaluateHSPage = function (page, ph) {
                     productInfo.productName = util.toCleanName(ele.find('.text').first().text());
 
                     var priceStr = ele.find('.price strong').first().text().replace('원', '');
-                    productInfo.productPrice = parseInt(priceStr.replace(/,/g, ''));
+                    productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
 
                     productInfo.productPgURL = 'http://m.hnsmall.com' + ele.find('.text').attr('onclick').replace('goPage','').substring(2).replace('\')','').replace(/\\/g,'/');
 
@@ -543,8 +543,8 @@ exports.evaluateLHPage = function (page, ph) {
 
 //                                var yy_mm_dd = '20140131';	//년월일
 //                                var HH_mm = '2010';	//시간분
-                                var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
-                                var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+                                var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                                var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
 
                                 tmr.setDate(today.getDate()+1);
                                 tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
@@ -565,7 +565,7 @@ exports.evaluateLHPage = function (page, ph) {
                             var dateStr = $('#selDate').text(); //10월 02일 (목)
 
                             // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                            var cDateStr = new Date().getFullYear() + dateStr.substring(0, 2) + dateStr.substring(4, 6);  //20140929
+                            var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
 
                             // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                             // 만드는 정보 : id, providerId
@@ -596,7 +596,7 @@ exports.evaluateLHPage = function (page, ph) {
                                 productInfo.productName = util.toCleanName(ele.find('.title').text());
 
                                 var priceStr = ele.find('.price').text().replace(/,|원/g,'');   //71,910원 --> 71910
-                                productInfo.productPrice = parseInt(priceStr);
+                                productInfo.productPrice = Number(priceStr);
 
                                 var pdURLStr = ele.find('.goods_info a').attr('href');
                                 var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
@@ -648,11 +648,11 @@ exports.evaluateNSPage = function (page, ph) {
 
 //                                var yy_mm_dd = '20140131';	//년월일
 //                                var HH_mm = '2010';	//시간분
-                    var today = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
-                    var tmr = new Date(parseInt(yy_mm_dd.substr(0, 4)), parseInt(yy_mm_dd.substr(4, 2))-1, parseInt(yy_mm_dd.substr(6, 2)));
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
 
                     tmr.setDate(today.getDate()+1);
-                    tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
 
                     var timeStr = ''+tmr.getFullYear()
                         +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
@@ -751,6 +751,9 @@ exports.evaluateNSPage = function (page, ph) {
 };
 
 
+/*********************************** evaluate data ahead ********************************************/
+
+
 exports.evaluateGSPageAhead2 = function (page, ph) {
     page.evaluate(function () {
         var cmd = 'window.location = "http://m.gsshop.com/" + $(".next").attr("href"); ';
@@ -782,6 +785,16 @@ exports.evaluateGSPageAhead = function (page, ph) {
 
 //TODO(error) : CJ는 더 알아봐야 할 듯. 일단 기본적으로 내일 편성표까지
 exports.evaluateCJPageAhead = function (page, ph) {
+    page.evaluate(function () {
+        var cmd = " var btns = document.querySelectorAll('.date_area li a'); btns[6].onclick()";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateCJPage(page, ph);
+        }, 3000);
+    });
+};
+exports.evaluateCJPageAhead2 = function (page, ph) {
     page.evaluate(function () {
         var cmd = " jQuery('.date_area li a')[7].click() ";
         eval(cmd);
@@ -834,7 +847,6 @@ exports.evaluateHMPageAhead2 = function (page, ph) {
     });
 };
 
-
 exports.evaluateHSPageAhead = function (page, ph) {
     page.evaluate(function () {
         var getDateStrAfter = function (days) {
@@ -876,47 +888,284 @@ exports.evaluateHSPageAhead2 = function (page, ph) {
         }, 3000);
     });
 };
-//TODO(error)
+
+
 exports.evaluateLHPageAhead = function (page, ph) {
     page.evaluate(function () {
-        var getDateStrAfter = function (days) {
-            var today = new Date();	//년, 월-1, 일
-            var tmr = new Date();
-            tmr.setDate(today.getDate() + days);
+            var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
+            eval('window.location = "' + url + '"');
+        },
+        function () {
+            console.log('first evaluate');
 
-            var timeStr = ''+tmr.getFullYear()
-                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
-                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
-            return timeStr;
-        };
-        var cmd = "javascript:fn_goPgmDayList('" + getDateStrAfter(1) + "')";
-        eval(cmd);
-    }, function () {
-        setTimeout(function () {
-            exports.evaluateLHPage(page, ph);
-        }, 3000);
-    });
+            //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
+            setTimeout(function () {
+                console.log('going second evaluate');
+                secondJob();
+            }, 3000);   //실험상 3초
+        });
+    function secondJob(){
+        page.evaluate(function () {
+            var getDateStrAfter = function (days) {
+                var today = new Date();	//년, 월-1, 일
+                var tmr = new Date();
+                tmr.setDate(today.getDate() + days);
+
+                var timeStr = ''+tmr.getFullYear()
+                    +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                    +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+                return timeStr;
+            };
+            var cmd = "javascript:fn_goPgmDayList('" + getDateStrAfter(1) + "')";
+            eval(cmd);
+        }, function () {
+            setTimeout(function () {
+                thirdJob();
+            }, 3000);
+        });
+    }
+    function thirdJob() { //홈쇼핑 편성표를 불러오는 것까지 성공.
+        page.evaluate(function () {
+
+            var util = {
+                toDateTime: function (str) {
+                    return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
+                        + str.substring(8, 10) + ':' + str.substring(10, 12) + ':00';
+                },
+                toCleanName: function (str) {
+                    var removedTagStr;
+                    var after;
+                    var first = str.search(/\[/);
+                    var second = str.search(/\]/);
+                    if (first == -1 || second == -1) {
+                        removedTagStr = str;
+                    }
+                    removedTagStr = str.replace(str.slice(first, second + 1), '');
+                    after = removedTagStr.replace(/\t/g, '').replace(/\n/g, '');
+                    return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
+                }
+            };
+
+
+            function getData() {
+                var productInfoArr = [];
+                var frameArr = $('.onAirPrdLst');
+                var dateStr = $('#selDate').text(); //10월 02일 (목)
+
+                // 크롤링하는 시점의 년도 + 크롤링해온 월 일
+                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+
+                // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
+                // 만드는 정보 : id, providerId
+
+                var idx;
+                for (idx = 0; idx < frameArr.length; idx++) {
+                    var productInfo = {};
+                    var frameEle = $(frameArr[idx]);  //main frame
+
+                    var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
+                    var startTime = cDateStr + timeArr[0]; //201410020820
+
+                    productInfo.providerId = 'LH';
+                    productInfo.id = productInfo.providerId + startTime ;
+
+                    productInfo.productStartTime = util.toDateTime(startTime);
+
+                    var endTime = cDateStr + timeArr[1] ; //201409300100
+
+                    if(idx == frameArr.length-1){   //마지막 날짜면
+                        endTime = util.toTomorrow(cDateStr, timeArr[1]);
+                    }
+
+                    productInfo.productEndTime = util.toDateTime(endTime);
+
+                    var ele = frameEle.find('.mainlist');
+
+                    productInfo.productName = util.toCleanName(ele.find('.title').text());
+
+                    var priceStr = ele.find('.price').text().replace(/,|원/g,'');   //71,910원 --> 71910
+                    productInfo.productPrice = Number(priceStr);
+
+                    var pdURLStr = ele.find('.goods_info a').attr('href');
+                    var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
+                    productInfo.productPgURL = 'http://m.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
+
+                    productInfo.productImgURL = ele.find('img').attr('src');
+
+                    productInfoArr.push(productInfo);
+                }
+
+                return productInfoArr;
+            }
+
+            var productInfoArr = [];
+            productInfoArr = getData();
+
+            return productInfoArr;
+
+        }, function (result) {
+            ph.exit();
+            storeResult(result);
+        });
+
+    }
+
 };
-//TODO(error)
+)
 exports.evaluateLHPageAhead2 = function (page, ph) {
     page.evaluate(function () {
-        var getDateStrAfter = function (days) {
-            var today = new Date();	//년, 월-1, 일
-            var tmr = new Date();
-            tmr.setDate(today.getDate() + days);
+            var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
+            eval('window.location = "' + url + '"');
+        },
+        function () {
+            console.log('first evaluate');
 
-            var timeStr = ''+tmr.getFullYear()
-                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
-                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
-            return timeStr;
-        };
-        var cmd = "fn_goPgmDayList('" + getDateStrAfter(2) + "')";
-        eval(cmd);
-    }, function () {
-        setTimeout(function () {
-            exports.evaluateLHPage(page, ph);
-        }, 3000);
-    });
+            //위 함수에서 eval이 실행만 시켜둔 상태에서(페이지는 로딩 중) 리턴되므로, 타이머를 이용해 DOM 추출을 2차 evaluate에서 해야 함.
+            setTimeout(function () {
+                console.log('going second evaluate');
+                secondJob();
+            }, 3000);   //실험상 3초
+        });
+    function secondJob(){
+        page.evaluate(function () {
+            var getDateStrAfter = function (days) {
+                var today = new Date();	//년, 월-1, 일
+                var tmr = new Date();
+                tmr.setDate(today.getDate() + days);
+
+                var timeStr = ''+tmr.getFullYear()
+                    +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                    +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+                return timeStr;
+            };
+            var cmd = "javascript:fn_goPgmDayList('" + getDateStrAfter(2) + "')";
+            eval(cmd);
+        }, function () {
+            setTimeout(function () {
+                thirdJob();
+            }, 3000);
+        });
+    }
+    function thirdJob() { //홈쇼핑 편성표를 불러오는 것까지 성공.
+        page.evaluate(function () {
+
+            var util = {
+                toDateTime: function (str) {
+                    return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
+                        + str.substring(8, 10) + ':' + str.substring(10, 12) + ':00';
+                },
+                toCleanName: function (str) {
+                    var removedTagStr;
+                    var after;
+                    var first = str.search(/\[/);
+                    var second = str.search(/\]/);
+                    if (first == -1 || second == -1) {
+                        removedTagStr = str;
+                    }
+                    removedTagStr = str.replace(str.slice(first, second + 1), '');
+                    after = removedTagStr.replace(/\t/g, '').replace(/\n/g, '');
+                    return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
+                }
+            };
+
+
+            function getData() {
+                var productInfoArr = [];
+                var frameArr = $('.onAirPrdLst');
+                var dateStr = $('#selDate').text(); //10월 02일 (목)
+
+                // 크롤링하는 시점의 년도 + 크롤링해온 월 일
+                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+
+                // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
+                // 만드는 정보 : id, providerId
+
+                var idx;
+                for (idx = 0; idx < frameArr.length; idx++) {
+                    var productInfo = {};
+                    var frameEle = $(frameArr[idx]);  //main frame
+
+                    var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
+                    var startTime = cDateStr + timeArr[0]; //201410020820
+
+                    productInfo.providerId = 'LH';
+                    productInfo.id = productInfo.providerId + startTime ;
+
+                    productInfo.productStartTime = util.toDateTime(startTime);
+
+                    var endTime = cDateStr + timeArr[1] ; //201409300100
+
+                    if(idx == frameArr.length-1){   //마지막 날짜면
+                        endTime = util.toTomorrow(cDateStr, timeArr[1]);
+                    }
+
+                    productInfo.productEndTime = util.toDateTime(endTime);
+
+                    var ele = frameEle.find('.mainlist');
+
+                    productInfo.productName = util.toCleanName(ele.find('.title').text());
+
+                    var priceStr = ele.find('.price').text().replace(/,|원/g,'');   //71,910원 --> 71910
+                    productInfo.productPrice = Number(priceStr);
+
+                    var pdURLStr = ele.find('.goods_info a').attr('href');
+                    var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
+                    productInfo.productPgURL = 'http://m.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
+
+                    productInfo.productImgURL = ele.find('img').attr('src');
+
+                    productInfoArr.push(productInfo);
+                }
+
+                return productInfoArr;
+            }
+
+            var productInfoArr = [];
+            productInfoArr = getData();
+
+            return productInfoArr;
+
+        }, function (result) {
+            ph.exit();
+            storeResult(result);
+        });
+
+    }
+
 };
 //TODO(error)
 exports.evaluateNSPageAhead = function (page, ph) {
