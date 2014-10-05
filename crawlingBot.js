@@ -17,47 +17,131 @@ var chSchedule = {
     NS: "http://www.nsmall.com/jsp/etv/shopping_schedule.jsp"  // 모바일 페이지가 없음
 };
 
+var FROM_NOW = {
+    TODAY: 0,
+    TOMORROW: 1,
+    TDAT: 2
+};
+
 //TODO : 원하는 channel의 코드를 넣으면, 크롤링을 해온다.
-var createPhantom = function (channel){
+var createPhantom = function (channel, fromNow) {
     phantom.create(function (ph) {
         ph.createPage(function (page) {
-            if(channel == 'HM')
+            if (channel == 'HM')
                 util.setUserAgent(page);
 //            page.set('scrollPosition', {top:800,left:0});
             page.open(chSchedule[channel], function (status) {
                 console.log("crawler - opening page", chSchedule[channel], status);
-                if(channel == 'CJ') {
-                    evaluater.evaluateCJPage(page, ph);
-                }else if(channel == 'GS'){
-                    evaluater.evaluateGSPage(page, ph);
-                }else if(channel == 'HM'){
-                    evaluater.evaluateHMPage(page, ph);
-                }else if(channel == 'HS'){
-                    evaluater.evaluateHSPage(page, ph);
-                }else if(channel == 'LH'){
-                    evaluater.evaluateLHPage(page, ph);
-                }else if(channel == 'NS'){
-                    evaluater.evaluateNSPage(page, ph);
-                }else{
-                    console.log('not supported channel..');
-                    ph.exit();
+                if (channel == 'CJ') {
+                    switch (fromNow) {
+                        case FROM_NOW.TODAY :
+                            evaluater.evaluateCJPage(page, ph);
+                            break;
+                        case FROM_NOW.TOMORROW :
+                            break;
+                        case FROM_NOW.TDAT :
+                            break;
+                    }
+                } else if (channel == 'GS') {
+                    switch (fromNow) {
+                        case FROM_NOW.TODAY :
+                            evaluater.evaluateGSPage(page, ph);
+                            break;
+                        case FROM_NOW.TOMORROW :
+                            evaluater.evaluateGSPageAhead(page, ph);
+                            break;
+                        case FROM_NOW.TDAT :
+                            evaluater.evaluateGSPageAhead2(page, ph);
+                            break;
+                    }
+                } else if (channel == 'HM') {
+                    switch (fromNow) {
+                        case FROM_NOW.TODAY :
+                            evaluater.evaluateHMPage(page, ph);
+                            break;
+                        case FROM_NOW.TOMORROW :
+                            evaluater.evaluateHMPageAhead(page, ph);
+                            break;
+                        case FROM_NOW.TDAT :
+                            evaluater.evaluateHMPageAhead2(page, ph);
 
+                            break;
+                    }
+
+                } else if (channel == 'HS') {
+                    switch (fromNow) {
+                        case FROM_NOW.TODAY :
+                            evaluater.evaluateHSPage(page, ph);
+                            break;
+                        case FROM_NOW.TOMORROW :
+                            evaluater.evaluateHSPageAhead(page, ph);
+                            break;
+                        case FROM_NOW.TDAT :
+                            evaluater.evaluateHSPageAhead2(page, ph);
+                            break;
+                    }
+
+                } else if (channel == 'LH') {
+                    switch (fromNow) {
+                        case FROM_NOW.TODAY :
+                            evaluater.evaluateLHPage(page, ph);
+                            break;
+                        case FROM_NOW.TOMORROW :
+                            evaluater.evaluateLHPageAhead(page, ph);
+                            break;
+                        case FROM_NOW.TDAT :
+                            evaluater.evaluateLHPageAhead2(page, ph);
+                            break;
+                    }
+
+                } else if (channel == 'NS') {
+                    switch (fromNow) {
+                        case FROM_NOW.TODAY :
+                            evaluater.evaluateNSPage(page, ph);
+                            break;
+                        case FROM_NOW.TOMORROW :
+                            evaluater.evaluateNSPageAhead(page, ph);
+                            break;
+                        case FROM_NOW.TDAT :
+                            evaluater.evaluateNSPageAhead2(page, ph);
+                            break;
+                    }
+                } else {
+                    console.log('not supported channel..');
+                    ph.exit();  //phantomJS만 종료.
                 }
             });
         });
     });
 };
-var args = process.argv.slice(2);
-createPhantom(args);    //node crawlingBot 'CJ'
 
-/*
-for(var key in chSchedule){
-    setTimeout((function(key){
-        return function(){
-            if(key == 'CJ'){
-                createPhantom(key);
-            }
-        }
-    })(key), 1000);
-}
-*/
+
+//var args = process.argv.slice(2);
+//createPhantom(args);    //node crawlingBot 'CJ'
+
+
+
+var excuteBot = function () {
+
+//    createPhantom('CJ', FROM_NOW.TODAY);
+//    createPhantom('GS', FROM_NOW.TODAY);
+//    createPhantom('HM', FROM_NOW.TODAY);
+//    createPhantom('HS', FROM_NOW.TDAT);
+    createPhantom('LH', FROM_NOW.TOMORROW);
+//    createPhantom('NS', FROM_NOW.TODAY);
+
+
+
+//    for (var key in chSchedule) {
+//        setTimeout((function (key) {
+//            return function () {
+//                if (key == 'CJ') {
+//                    createPhantom(key);
+//                }
+//            }
+//        })(key), 1000);
+//    }
+
+};
+
+excuteBot();

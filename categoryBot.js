@@ -47,7 +47,7 @@ var createPhantom = function (pdEle) {
     });
 };
 var args = process.argv.slice(2);
-var whereClause = ' where providerId = "' + args + '" and firstId is NULL ';
+var whereClause = ' where providerId = "' + args + '" and firstId is NULL or secondId = -1 ';
 //whereClause = '';
 excuteBot(whereClause);
 

@@ -24,3 +24,13 @@ exports.toCleanName = function (str) {
 */
 
 
+exports.getDateStrAfter = function (days) {
+    var today = new Date();	//년, 월-1, 일
+    var tmr = new Date();
+    tmr.setDate(today.getDate() + days);
+
+    var timeStr = ''+tmr.getFullYear()
+        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+    return timeStr;
+};

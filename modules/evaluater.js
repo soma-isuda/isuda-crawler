@@ -3,12 +3,67 @@
  */
 
 var model = require('./model');
+var util = require('./util');
 
 var CHECK_RESULT = {
     INSERT : 0,
     UPDATE : 1,
     NOTHING : 2
 };
+
+function storeResult(result){
+    for (var idx in result) {
+        (function(idx) {
+            setTimeout(
+                function() {
+                    var p = result[idx];
+                    checkNewProduct(p.providerId, p.id, p.productPrice, function (check) {
+                        console.log(p.id, Object.keys(CHECK_RESULT)[check], p.productPrice);
+                        switch (check){
+                            case CHECK_RESULT.INSERT :
+                                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
+                                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
+                                insertProductInfo(data);
+                                break;
+                            case CHECK_RESULT.UPDATE :
+                                var data = [p.productName, p.productPrice, p.productStartTime,
+                                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL, p.id];
+                                updateProductInfo(data);
+                                break;
+                            case CHECK_RESULT.NOTHING :
+                                break;
+                        }
+                    });
+                }, 0);
+        })(idx);
+    }
+}
+// 아이디가 같고, 가격이 같을 때에는 insert, 아이디가 같고, 가격이 다르면 update
+function insertProductInfo(data) {
+    model.insertProductInfo(data, function (err) {
+        if (err) console.error('err', err);
+    });
+}
+function updateProductInfo(data){
+    model.updateProductInfo(data, function(err){
+        if (err) console.error('err', err);
+    });
+}
+function checkNewProduct(providerId, productId, productPrice, callback){
+    model.selectPriceById([providerId, productId], function (err, result) { //해당 id가 테이블에 존재하는 지 확인
+    // 존재? [ { productPrice: 33900 } ] : []
+        if (err) console.error('err', err);
+        if(result[0] == undefined){  //아이디가 존재하지 않음 ==> INSERT
+            callback(CHECK_RESULT.INSERT);
+        }else{
+            if(result[0].productPrice == productPrice){
+                callback(CHECK_RESULT.NOTHING); //가격이 같음 ==> NOTHING
+            }else{
+                callback(CHECK_RESULT.UPDATE);  //가격이 다름 ==> UPDATE
+            }
+        }
+    });
+}
 
 //TODO(more) $('.date_area li a')[6].click() //내일
 //TODO(more) $('.date_area li a')[7].click() //모래
@@ -82,67 +137,15 @@ exports.evaluateCJPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) { //한 편성표 페이지에서 크롤링해온 데이터들
-//            console.log(result);
+            ph.exit();
             storeResult(result);
+
         });
 };
 
-function storeResult(result){
-    for (var idx in result) {
-        (function(idx) {
-            setTimeout(
-                function() {
-                    var p = result[idx];
-                    checkNewProduct(p.providerId, p.id, p.productPrice, function (check) {
-                        console.log(p.id, Object.keys(CHECK_RESULT)[check], p.productPrice);
-                        switch (check){
-                            case CHECK_RESULT.INSERT :
-                                var data = [p.id, p.productName, p.productPrice, p.productStartTime,
-                                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL];
-                                insertProductInfo(data);
-                                break;
-                            case CHECK_RESULT.UPDATE :
-                                var data = [p.productName, p.productPrice, p.productStartTime,
-                                    p.productEndTime, p.providerId, p.productPgURL, p.productImgURL, p.id];
-                                updateProductInfo(data);
-                                break;
-                            case CHECK_RESULT.NOTHING :
-                                break;
-                        }
-                    });
-                }, 0);
-        })(idx);
-    }
-}
-// 아이디가 같고, 가격이 같을 때에는 insert, 아이디가 같고, 가격이 다르면 update
-function insertProductInfo(data) {
-    model.insertProductInfo(data, function (err) {
-        if (err) console.error('err', err);
-    });
-}
-function updateProductInfo(data){
-    model.updateProductInfo(data, function(err){
-        if (err) console.error('err', err);
-    });
-}
-
-function checkNewProduct(providerId, productId, productPrice, callback){
-    model.selectPriceById([providerId, productId], function (err, result) { //해당 id가 테이블에 존재하는 지 확인
-    // 존재? [ { productPrice: 33900 } ] : []
-        if (err) console.error('err', err);
-        if(result[0] == undefined){  //아이디가 존재하지 않음 ==> INSERT
-            callback(CHECK_RESULT.INSERT);
-        }else{
-            if(result[0].productPrice == productPrice){
-                callback(CHECK_RESULT.NOTHING); //가격이 같음 ==> NOTHING
-            }else{
-                callback(CHECK_RESULT.UPDATE);  //가격이 다름 ==> UPDATE
-            }
-        }
-    });
-}
 
 //TODO(more) window.location = "http://m.gsshop.com/" + $('.next').attr('href') //다음 날
+//eval, eval-eval
 exports.evaluateGSPage = function (page, ph) {
     page.evaluate(function () {
             var util = {
@@ -242,12 +245,13 @@ exports.evaluateGSPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) {
+            ph.exit();
             storeResult(result);
         });
 };
 
 //evaluate 안에서 타이머도 안먹고..비동기로 막 실행되는 것 같은데 콜백도 딱히 효과없고..
-//TODO(more) javascript:goDateView(20141006) //날짜를 넣어서 이동
+//TODO(more) goDateView(20141006) //날짜를 넣어서 이동
 exports.evaluateHMPage = function (page, ph) {
     page.evaluate(function () {
 
@@ -381,13 +385,14 @@ exports.evaluateHMPage = function (page, ph) {
 
                 }, function (result) {
                     console.log('second evaluate');
+                    ph.exit();
                     storeResult(result);
                 });
             }
         });
 };
 
-//TODO(more) javascript:changeCalendarDay(20141006) // 날짜를 넣어서 이동
+//TODO(more) changeCalendarDay(20141006) // 날짜를 넣어서 이동
 exports.evaluateHSPage = function (page, ph) {
     page.evaluate(function () {
             var util = {
@@ -493,6 +498,7 @@ exports.evaluateHSPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) {
+            ph.exit();
             storeResult(result);
         });
 };
@@ -610,7 +616,7 @@ exports.evaluateLHPage = function (page, ph) {
                         return productInfoArr;
 
                     }, function (result) {
-//                        console.log(result);
+                        ph.exit();
                         storeResult(result);
                     });
 
@@ -622,7 +628,6 @@ exports.evaluateLHPage = function (page, ph) {
 //TODO(must) : 시간에 따라 편성표가 어떻게 변하는 지 확인해봐야 함.
 exports.evaluateNSPage = function (page, ph) {
     page.evaluate(function () {
-            eval('window.location = "http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=20141006"');
             var util = {
                 toDateTime: function (str) {
                     return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
@@ -733,13 +738,226 @@ exports.evaluateNSPage = function (page, ph) {
             return  productInfoArr;
         },
         function (result) {
-//            storeResult(result);
-            (function(){
-                setTimeout(function () {
-                    page.render('test.jpeg');
-                    console.log('saved');
-                }, 5000);
-            })();
+            ph.exit();
+            storeResult(result);
+//            (function(){
+//                setTimeout(function () {
+//                    page.render('test.jpeg');
+//                    console.log('saved');
+//                }, 5000);
+//            })();
 
         });
+};
+
+
+exports.evaluateGSPageAhead2 = function (page, ph) {
+    page.evaluate(function () {
+        var cmd = 'window.location = "http://m.gsshop.com/" + $(".next").attr("href"); ';
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            page.evaluate(function () {
+                var cmd = 'window.location = "http://m.gsshop.com/" + $(".next").attr("href"); ';
+                eval(cmd);
+            }, function () {
+                setTimeout(function () {
+                    exports.evaluateGSPage(page, ph);
+                }, 3000);
+            });
+        }, 3000);
+    });
+};
+
+exports.evaluateGSPageAhead = function (page, ph) {
+    page.evaluate(function () {
+        var cmd = 'window.location = "http://m.gsshop.com/" + $(".next").attr("href"); ';
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateGSPage(page, ph);
+        }, 3000);
+    });
+};
+
+//TODO(error) : CJ는 더 알아봐야 할 듯. 일단 기본적으로 내일 편성표까지
+exports.evaluateCJPageAhead = function (page, ph) {
+    page.evaluate(function () {
+        var cmd = " jQuery('.date_area li a')[7].click() ";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateCJPage(page, ph);
+        }, 3000);
+    });
+};
+//TODO(error)
+exports.evaluateHMPageAhead = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+        var cmd = "javascript:goDateView(" + getDateStrAfter(1) + ")";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateHMPage(page, ph);
+        }, 5000);
+    });
+};
+//TODO(error)
+exports.evaluateHMPageAhead2 = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+        var cmd = "javascript:goDateView(" + getDateStrAfter(2) + ")";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateHMPage(page, ph);
+        }, 5000);
+    });
+};
+
+
+exports.evaluateHSPageAhead = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+        var cmd = "changeCalendarDay(" + getDateStrAfter(1) + ")";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateHSPage(page, ph);
+        }, 3000);
+    });
+};
+
+exports.evaluateHSPageAhead2 = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+        var cmd = "changeCalendarDay(" + getDateStrAfter(2) + ")";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateHSPage(page, ph);
+        }, 3000);
+    });
+};
+//TODO(error)
+exports.evaluateLHPageAhead = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+        var cmd = "javascript:fn_goPgmDayList('" + getDateStrAfter(1) + "')";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateLHPage(page, ph);
+        }, 3000);
+    });
+};
+//TODO(error)
+exports.evaluateLHPageAhead2 = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+        var cmd = "fn_goPgmDayList('" + getDateStrAfter(2) + "')";
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateLHPage(page, ph);
+        }, 3000);
+    });
+};
+//TODO(error)
+exports.evaluateNSPageAhead = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+//        var cmd = "window.location = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=20141006'";
+        eval('');
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateNSPage(page, ph);
+        }, 10000);
+    });
+};
+
+//TODO(error)
+exports.evaluateNSPageAhead2 = function (page, ph) {
+    page.evaluate(function () {
+        var getDateStrAfter = function (days) {
+            var today = new Date();	//년, 월-1, 일
+            var tmr = new Date();
+            tmr.setDate(today.getDate() + days);
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+            return timeStr;
+        };
+        var cmd = 'window.location = "http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=' + getDateStrAfter(2) + '"';
+        eval(cmd);
+    }, function () {
+        setTimeout(function () {
+            exports.evaluateNSPage(page, ph);
+        }, 5000);
+    });
 };
