@@ -133,7 +133,7 @@ var excuteBot = function () {
 //    createPhantom('NS', FROM_NOW.TDAT);
 
 
-    var fromNow = FROM_NOW.TDAT;
+    var fromNow = FROM_NOW.TODAY;
     for (var key in chSchedule) {
         (function(key){
             console.log('********** key **********', key, '**********', Object.keys(FROM_NOW)[fromNow], '**********');
