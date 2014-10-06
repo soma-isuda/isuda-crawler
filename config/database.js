@@ -9,9 +9,9 @@ db.pool = generic_pool.Pool({
         var config = {
             host: '127.0.0.1',
             port: '3306',
-            user: 'FitterNoteAdmin',
-            password: 'fitter',
-            database: 'test'
+            user: 'root',
+            password: 'wldus1004',
+            database: 'isuda'
         };
         var client = mysql.createConnection(config);
         client.connect(function(err) {
@@ -24,11 +24,11 @@ db.pool = generic_pool.Pool({
     },
     max: 10,
     min: 2,
-    idleTimeoutMillis : 30000, // 5분 동안 접속을 유지한다
+    idleTimeoutMillis : 30000,
     log : false
 });
 
-db.process = process.on('exit', function (){ // process 가 종료될 때
+db.process = process.on('exit', function (){
     db.pool.drain(function() {
         db.pool.destroyAllNow();
     });

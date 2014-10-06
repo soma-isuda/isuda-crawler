@@ -10,22 +10,6 @@ var excuteBot = function (whereClause) {
     model.selectProductName_Id(function (err, result) {
         if (err) console.error('err', err);
         var pdArr = result;
-        /*
-         phantom.create(function (ph) {
-         ph.createPage(function (page) {
-         for(var idx in pdArr){
-
-         setTimeout((function(idx){
-         return function(){
-         console.log(idx + '번째 데이터 ');
-         openNaverShoppingPage(page, ph, pdArr[idx]);
-         }
-         })(idx), 2000);
-
-         }
-         });
-         });
-         */
 
         for(var idx in pdArr){
             var pdEle = pdArr[idx];
@@ -33,7 +17,7 @@ var excuteBot = function (whereClause) {
                 return function(){
                     createPhantom(pdEle);
                 }
-            })(pdEle), 10000);
+            })(pdEle), 0);
         }
     }, whereClause);
 };
@@ -47,7 +31,7 @@ var createPhantom = function (pdEle) {
     });
 };
 var args = process.argv.slice(2);
-var whereClause = ' where productEndTime > now() and providerId = "' + args + '" and firstId is NULL or secondId = -1 ';
+var whereClause = ' where productEndTime < now() and providerId = "' + args + '" and firstId != -1 and (secondId is null or secondId = -1) limit 40 ';
 //whereClause = '';
 excuteBot(whereClause);
 

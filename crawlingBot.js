@@ -38,10 +38,10 @@ var createPhantom = function (channel, fromNow) {
                             evaluater.evaluateCJPage(page, ph);
                             break;
                         case FROM_NOW.TOMORROW :
-                            evaluater.evaluateCJPageAhead(page, ph);
+//                            evaluater.evaluateCJPageAhead(page, ph);
                             break;
                         case FROM_NOW.TDAT :
-                            evaluater.evaluateCJPageAhead2(page, ph);
+//                            evaluater.evaluateCJPageAhead2(page, ph);
                             break;
                     }
                 } else if (channel == 'GS') {
@@ -102,10 +102,10 @@ var createPhantom = function (channel, fromNow) {
                             evaluater.evaluateNSPage(page, ph);
                             break;
                         case FROM_NOW.TOMORROW :
-                            evaluater.evaluateNSPageAhead(page, ph);
+//                            evaluater.evaluateNSPageAhead(page, ph);
                             break;
                         case FROM_NOW.TDAT :
-                            evaluater.evaluateNSPageAhead2(page, ph);
+//                            evaluater.evaluateNSPageAhead2(page, ph);
                             break;
                     }
                 } else {
@@ -127,21 +127,21 @@ var excuteBot = function () {
 
 //    createPhantom('CJ', FROM_NOW.TOMORROW);
 //    createPhantom('GS', FROM_NOW.TODAY);
-//    createPhantom('HM', FROM_NOW.TODAY);
+//    createPhantom('HM', FROM_NOW.TDAT);
 //    createPhantom('HS', FROM_NOW.TDAT);
-    createPhantom('LH', FROM_NOW.TDAT);
-//    createPhantom('NS', FROM_NOW.TODAY);
+//    createPhantom('LH', FROM_NOW.TDAT);
+//    createPhantom('NS', FROM_NOW.TDAT);
 
 
-
-//    for (var key in chSchedule) {
-//        (function(key){
-//            console.log('***** key *****', key);
-//            setTimeout(function () {
-//                createPhantom(key, FROM_NOW.TOMORROW);
-//            }, 5000);
-//        })(key);
-//    }
+    var fromNow = FROM_NOW.TDAT;
+    for (var key in chSchedule) {
+        (function(key){
+            console.log('********** key **********', key, '**********', Object.keys(FROM_NOW)[fromNow], '**********');
+            setTimeout(function () {
+                createPhantom(key, fromNow);
+            }, 5000);
+        })(key);
+    }
 
 };
 

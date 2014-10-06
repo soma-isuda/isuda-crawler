@@ -29,7 +29,7 @@ exports.insertProductInfo = function(data, callback) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
         conn.query('insert into productInfo(id, productName, productPrice, productStartTime, productEndTime, providerId, productPgURL, productImgURL) values(?, ?, ?, ?, ?, ?, ?, ?)', data, function(err, result) {
-            console.log('insertProductInfo insert result', result);
+//            console.log('insertProductInfo insert result', result);
             callback(err, result);
         });
         db.pool.release(conn);
@@ -43,7 +43,7 @@ exports.updateProductInfo = function(data, callback) {
             +  'SET productName = ?, productPrice = ?, productStartTime = ?, productEndTime = ?, providerId = ?, productPgURL = ?, productImgURL = ?, secondId = -1 '
             + ' WHERE id = ?';
         conn.query(Query, data, function(err, result) {
-            console.log('updateProductInfo result', result);
+//            console.log('updateProductInfo result', result);
             callback(err, result);
         });
         db.pool.release(conn);
@@ -55,7 +55,7 @@ exports.selectPriceById = function(data, callback) {
         if(err) console.error('err', err);
         var Query = 'select productPrice from productInfo WHERE providerId = ? AND id = ? ';
         conn.query(Query, data, function(err, result) {
-//            console.log('selectProductInfoPrice_Id result', result);
+// //            console.log('selectProductInfoPrice_Id result', result);
             callback(err, result);
         });
         db.pool.release(conn);
@@ -79,7 +79,7 @@ exports.updateCategory = function(data, callback) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
         conn.query('UPDATE productInfo SET firstId = (SELECT id FROM firstCategory WHERE NAME = ?), secondId = (SELECT id FROM secondCategory WHERE NAME = ?) WHERE id= ?', data, function(err, result) {
-            console.log('updateCategory update result', result);
+//            console.log('updateCategory update result', result);
             callback(err, result);
         });
         db.pool.release(conn);
@@ -91,7 +91,7 @@ exports.selectProductName_Id = function(callback, whereClause) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
         conn.query('select id, productName from productInfo' + whereClause , function(err, result) {
-            console.log('selectProductName_Id result');
+//            console.log('selectProductName_Id result');
             callback(err, result);
         });
         db.pool.release(conn);
@@ -103,7 +103,7 @@ exports.selectProductURL_Id = function(callback) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
         conn.query('select id, productPgURL, providerId from productInfo where id = "LH201410030400"', function(err, result) {
-            console.log('selectProductURL_Id result');
+//            console.log('selectProductURL_Id result');
             callback(err, result);
         });
         db.pool.release(conn);

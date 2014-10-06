@@ -143,8 +143,6 @@ exports.evaluateCJPage = function (page, ph) {
         });
 };
 
-
-//TODO(more) window.location = "http://m.gsshop.com/" + $('.next').attr('href') //다음 날
 //eval, eval-eval
 exports.evaluateGSPage = function (page, ph) {
     page.evaluate(function () {
@@ -503,8 +501,7 @@ exports.evaluateHSPage = function (page, ph) {
         });
 };
 
-//TODO(more) fn_goPgmDayList('20141007') //날짜를 넣어서 이동
-//TODO(must) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시) --> 크롤링 스케줄링으로 해결하기
+//TODO(must) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시) --> 크롤링 스케줄링으로 해결
 exports.evaluateLHPage = function (page, ph) {
     page.evaluate(function () {
             var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
@@ -565,7 +562,7 @@ exports.evaluateLHPage = function (page, ph) {
                             var dateStr = $('#selDate').text(); //10월 02일 (목)
 
                             // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                            var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+                            var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(4, 2);  //20140929
 
                             // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                             // 만드는 정보 : id, providerId
@@ -783,18 +780,25 @@ exports.evaluateGSPageAhead = function (page, ph) {
     });
 };
 
-//TODO(error) : CJ는 더 알아봐야 할 듯. 일단 기본적으로 내일 편성표까지
+//TODO(error) : CJ는 더 알아봐야. 일단 기본적으로 내일 편성표까지
 exports.evaluateCJPageAhead = function (page, ph) {
-    page.evaluate(function () {
-        var cmd = " var btns = document.querySelectorAll('.date_area li a'); btns[6].onclick()";
-        eval(cmd);
-    }, function () {
-        setTimeout(function () {
-            exports.evaluateCJPage(page, ph);
-        }, 3000);
-    });
-};
+    setTimeout(function () {
+        doJob();
+    }, 10000);
 
+    function doJob(){
+        page.evaluate(function () {
+            var cmd = " var btns = document.querySelectorAll('.date_area li a'); btns[6].click()";
+            eval(cmd);
+        }, function () {
+            setTimeout(function () {
+                exports.evaluateCJPage(page, ph);
+            }, 3000);
+        });
+    }
+
+};
+//TODO(error) : CJ는 더 알아봐야. 일단 기본적으로 내일 편성표까지
 exports.evaluateCJPageAhead2 = function (page, ph) {
     page.evaluate(function () {
         var cmd = " jQuery('.date_area li a')[7].click() ";
@@ -802,7 +806,7 @@ exports.evaluateCJPageAhead2 = function (page, ph) {
     }, function () {
         setTimeout(function () {
             exports.evaluateCJPage(page, ph);
-        }, 3000);
+        }, 10000);
     });
 };
 
@@ -934,9 +938,6 @@ exports.evaluateHMPageAhead = function (page, ph) {
 
                     productInfo.productStartTime = util.toDateTime(startDateTime);
                     productInfo.productEndTime = util.toDateTime(endDateTime);
-
-                    //TODO(must): 'undefined' is not a function (evaluating 'ele.find('.goods_dsc')')
-
                     productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
 
                     var priceStr = ele.find('.price2').text().replace('원','');
@@ -1099,9 +1100,6 @@ exports.evaluateHMPageAhead2 = function (page, ph) {
 
                     productInfo.productStartTime = util.toDateTime(startDateTime);
                     productInfo.productEndTime = util.toDateTime(endDateTime);
-
-                    //TODO(must): 'undefined' is not a function (evaluating 'ele.find('.goods_dsc')')
-
                     productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
 
                     var priceStr = ele.find('.price2').text().replace('원','');
@@ -1176,7 +1174,6 @@ exports.evaluateHSPageAhead2 = function (page, ph) {
         }, 3000);
     });
 };
-
 
 exports.evaluateLHPageAhead = function (page, ph) {
     page.evaluate(function () {
@@ -1455,26 +1452,28 @@ exports.evaluateLHPageAhead2 = function (page, ph) {
     }
 
 };
+
 //TODO(error)
 exports.evaluateNSPageAhead = function (page, ph) {
-    page.evaluate(function () {
-        var getDateStrAfter = function (days) {
-            var today = new Date();	//년, 월-1, 일
-            var tmr = new Date();
-            tmr.setDate(today.getDate() + days);
+        page.evaluate(function () {
+            var getDateStrAfter = function (days) {
+                var today = new Date();	//년, 월-1, 일
+                var tmr = new Date();
+                tmr.setDate(today.getDate() + days);
 
-            var timeStr = ''+tmr.getFullYear()
-                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
-                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
-            return timeStr;
-        };
-//        var cmd = "window.location = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=20141006'";
-        eval('');
-    }, function () {
-        setTimeout(function () {
-            exports.evaluateNSPage(page, ph);
-        }, 10000);
-    });
+                var timeStr = ''+tmr.getFullYear()
+                    +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                    +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
+                return timeStr;
+            };
+
+            var cmd = "window.location = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=20141006'";
+            eval(cmd);
+        }, function () {
+            setTimeout(function () {
+                exports.evaluateNSPage(page, ph);
+            }, 3000);
+        });
 };
 
 //TODO(error)
