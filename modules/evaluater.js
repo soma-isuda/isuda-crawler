@@ -53,15 +53,18 @@ function checkNewProduct(providerId, productId, productPrice, callback){
     model.selectPriceById([providerId, productId], function (err, result) { //해당 id가 테이블에 존재하는 지 확인
     // 존재? [ { productPrice: 33900 } ] : []
         if (err) console.error('err', err);
-        if(result[0] == undefined){  //아이디가 존재하지 않음 ==> INSERT
-            callback(CHECK_RESULT.INSERT);
-        }else{
-            if(result[0].productPrice == productPrice){
-                callback(CHECK_RESULT.NOTHING); //가격이 같음 ==> NOTHING
+        else{
+            if(result[0] == undefined){  //아이디가 존재하지 않음 ==> INSERT
+                callback(CHECK_RESULT.INSERT);
             }else{
-                callback(CHECK_RESULT.UPDATE);  //가격이 다름 ==> UPDATE
+                if(result[0].productPrice == productPrice){
+                    callback(CHECK_RESULT.NOTHING); //가격이 같음 ==> NOTHING
+                }else{
+                    callback(CHECK_RESULT.UPDATE);  //가격이 다름 ==> UPDATE
+                }
             }
         }
+
     });
 }
 
@@ -844,7 +847,8 @@ exports.evaluateHMPageAhead = function (page, ph) {
                     +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
                 return timeStr;
             };
-            var cmd = "javascript:goDateView(" + getDateStrAfter(1) + ")";
+            var cmd = "goDateView(" + getDateStrAfter(1) + ")";
+            eval('setTimeout(function () { window.scrollTo(0, 2000); }, 2000)');    //얘도 스크롤바 내려줘야함.
             eval(cmd);
         }, function () {
             setTimeout(function () {
@@ -1006,7 +1010,8 @@ exports.evaluateHMPageAhead2 = function (page, ph) {
                     +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
                 return timeStr;
             };
-            var cmd = "javascript:goDateView(" + getDateStrAfter(2) + ")";
+            var cmd = 'goDateView(' + getDateStrAfter(2) + ')';
+            eval('setTimeout(function () { window.scrollTo(0, 2000); }, 2000)');    //얘도 스크롤바 내려줘야함.
             eval(cmd);
         }, function () {
             setTimeout(function () {
@@ -1071,6 +1076,8 @@ exports.evaluateHMPageAhead2 = function (page, ph) {
 
                     var ele = $(eleArr[idx]);
                     var productInfo = {};
+
+
 
                     var timeStr = timeArr[idx].innerHTML; //19:35 ~ 21:45 주방가전/주방용품
                     var strArr = timeStr.split(' ');

@@ -118,7 +118,8 @@ var createPhantom = function (channel, fromNow) {
 };
 
 
-//var args = process.argv.slice(2);
+var args = process.argv.slice(2);
+var args2 = process.argv.slice(3);
 //createPhantom(args);    //node crawlingBot 'CJ'
 
 
@@ -126,14 +127,13 @@ var createPhantom = function (channel, fromNow) {
 var excuteBot = function () {
 
 //    createPhantom('CJ', FROM_NOW.TOMORROW);
-//    createPhantom('GS', FROM_NOW.TODAY);
-//    createPhantom('HM', FROM_NOW.TDAT);
+//    createPhantom('GS', FROM_NOW.TOMORROW);
+//    createPhantom('HM', FROM_NOW.TODAY);
 //    createPhantom('HS', FROM_NOW.TDAT);
-//    createPhantom('LH', FROM_NOW.TDAT);
-//    createPhantom('NS', FROM_NOW.TDAT);
+//    createPhantom('LH', FROM_NOW.TODAY);
+//    createPhantom('NS', FROM_NOW.TOMORROW);
 
-
-    var fromNow = FROM_NOW.TODAY;
+    var fromNow = FROM_NOW.TDAT;
     for (var key in chSchedule) {
         (function(key){
             console.log('********** key **********', key, '**********', Object.keys(FROM_NOW)[fromNow], '**********');
@@ -142,7 +142,20 @@ var excuteBot = function () {
             }, 5000);
         })(key);
     }
+/*
+    for (var keyNow in FROM_NOW){
 
+        for (var key in chSchedule) {
+            (function(key){
+                console.log('********** key **********', key, '**********', keyNow, '**********');
+                setTimeout(function () {
+                    createPhantom(key, FROM_NOW[keyNow]);
+                }, 5000);
+            })(key);
+        }
+    }
+*/
 };
 
 excuteBot();
+//createPhantom(args, args2);
