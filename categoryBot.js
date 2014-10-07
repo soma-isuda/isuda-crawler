@@ -31,7 +31,7 @@ var createPhantom = function (pdEle) {
     });
 };
 var args = process.argv.slice(2);
-var whereClause = ' where productEndTime < now() and providerId = "' + args + '" and firstId != -1 and (secondId is null or secondId = -1) limit 40 ';
+var whereClause = ' where productEndTime > now() and providerId = "' + args + '"  and (secondId is null or secondId = -2) limit 30 ';
 //whereClause = '';
 excuteBot(whereClause);
 
@@ -40,7 +40,7 @@ function openNaverShoppingPage(page, ph, pdNameId){
         + encodeURI(pdNameId.productName);
 
     page.open(url, function (status) {
-        console.log("categoryBot - opening page", url, status);
+//        console.log("categoryBot - opening page", url, status);
         console.log('product' , pdNameId);
 
         if(status == 'success'){
@@ -55,11 +55,11 @@ function openNaverShoppingPage(page, ph, pdNameId){
 
 
                 if(cateArr[0] != undefined) {
-                    data.push(cateArr[0].text);
-                    data.push(cateArr[1].text);
+                    data.push(cateArr[0].text); //대분류
+                    data.push(cateArr[1].text); //중분류
                 }else{
                     data.push('');
-                    data.push('');
+                    data.push('empty');
                 }
 
                 return data;

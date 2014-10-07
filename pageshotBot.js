@@ -63,8 +63,9 @@ var createPhantom = function (pd){
 
 
 //실행하는 곳
-
-model.selectProductURL_Id(function (err, result) {
+var args = process.argv.slice(2);
+var whereClause = ' where productStartTime > now() and providerId = "' + args + '"';
+model.selectProductURL_Id(whereClause, function (err, result) {
     if (err) console.error('err', err);
     console.log(result);
     var pdArr = result;
