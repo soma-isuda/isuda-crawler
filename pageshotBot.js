@@ -14,7 +14,7 @@ var createPhantom = function (pd){
     phantom.create(function (ph) {
         ph.createPage(function (page) {
             page.set('viewportSize', {width:720,height:1080});  //브라우저가 보는 크기. 창.
-            console.log('start opeining page');
+//            console.log('start opeining page');
 
             //전처리
             if(pd.providerId == 'HM' || pd.providerId == 'LH')
@@ -92,7 +92,7 @@ function evaluateCjProductPg(page, ph, id) {
             return data;
         },
         function (result) {
-            console.log(result);
+//            console.log(result);
 
 //            setTimeout((function () {
 //                return function () {
@@ -118,7 +118,7 @@ function evaluateGSProductPg(page, ph, id){
             return data;
         },
         function (result) {
-            console.log(result);
+//            console.log(result);
 
 //            setTimeout((function () {
 //                return function () {
@@ -128,7 +128,7 @@ function evaluateGSProductPg(page, ph, id){
 //
 //                };
 //            })(), 2000);
-            setTimeout(savePageShot(page, ph, id), 2000);
+            setTimeout(savePageShot(page, ph, id), 4000);
 
         });
 }
