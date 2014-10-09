@@ -1460,47 +1460,146 @@ exports.evaluateLHPageAhead2 = function (page, ph) {
 
 };
 
-//TODO(error)
-exports.evaluateNSPageAhead = function (page, ph) {
-        page.evaluate(function () {
-            var getDateStrAfter = function (days) {
-                var today = new Date();	//년, 월-1, 일
-                var tmr = new Date();
-                tmr.setDate(today.getDate() + days);
+exports.evaluteNSPageForAhead = function(page, ph){
+    page.evaluate(function () {
+            var util = {
+                toDateTime: function (str) {
+                    return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
+                        + str.substring(8, 10) + ':' + str.substring(10, 12) + ':00';
+                },
+                toCleanName: function (str) {
+                    var removedTagStr;
+                    var after;
+                    var first = str.search(/\[/);
+                    var second = str.search(/\]/);
+                    if (first == -1 || second == -1) {
+                        removedTagStr = str;
+                    }
+                    removedTagStr = str.replace(str.slice(first, second + 1), '');
+                    after = removedTagStr.replace(/\t/g, '').replace(/\n/g, '');
+                    return after;
+                },
+                toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
 
-                var timeStr = ''+tmr.getFullYear()
-                    +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
-                    +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
-                return timeStr;
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+                    var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+                    var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
+
+                    tmr.setDate(today.getDate()+1);
+                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
+
+                    var timeStr = ''+tmr.getFullYear()
+                        +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                        +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                        +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                        +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+                    return timeStr;
+                }
             };
 
-            var cmd = "window.location = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=20141006'";
-            eval(cmd);
-        }, function () {
-            setTimeout(function () {
-                exports.evaluateNSPage(page, ph);
-            }, 3000);
+            var productInfoArr = [];
+
+            function getData() {
+                var productInfoArr = [];
+                var frameArr = $('.calendarWrap .nsDetalitype');   //TODO:evaluate와 여기만 다름.
+                var dateStr = $('.todayProd strong').text();    //TODO:evaluate와 여기만 다름.
+                var timeStrArr = $('.times a'); //07:25 ~ 08:20 들의 배열
+
+                // 크롤링하는 시점의 년도 + 크롤링해온 월 일
+                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+
+                // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
+                // 만드는 정보 : id, providerId
+
+                var isTomorrow = false;
+                var idx;
+                for (idx = 0; idx < frameArr.length; idx++) {
+                    var productInfo = {};
+                    var frameEle = $(frameArr[idx]);  //main frame
+                    var timeEle = $(timeStrArr[idx]);
+
+                    var timeStr = timeEle.text(); //19:35 ~ 21:45
+                    var strArr = timeStr.split(' ');
+                    var startTime = strArr[0].replace(':','');   //1935
+                    var endTime = strArr[2].replace(':','');     //2145
+
+                    //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                    var startDateTime;
+                    var endDateTime;
+
+
+
+                    if(isTomorrow){
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                        startDateTime = util.toTomorrow(cDateStr, startTime);
+                    }else{
+                        endDateTime = cDateStr + endTime;
+                        startDateTime = cDateStr + startTime;
+
+                    }
+
+                    if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                        isTomorrow = true;
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                    }
+
+                    productInfo.productStartTime = util.toDateTime(startDateTime);
+                    productInfo.productEndTime = util.toDateTime(endDateTime);
+
+                    productInfo.providerId = 'NS';
+                    productInfo.id = productInfo.providerId + startDateTime;
+
+
+                    var ele = frameEle.find('.first_h_conts');
+
+                    productInfo.productName = util.toCleanName(ele.find('.contents .con').text());
+
+                    var priceStr = ele.find('.price strong').text();
+                    productInfo.productPrice = Number(priceStr.replace(/,/g, '').replace('원', ''));
+
+                    productInfo.productPgURL = '';  //NS는 비워두고 해당 시간에 퍼온다. 웹 페이지 주소를 미리 알 수가 없다.
+
+                    productInfo.productImgURL = ele.find('.img img').attr('src');
+
+                    productInfoArr.push(productInfo);
+                }
+
+                return productInfoArr;
+            }
+
+            productInfoArr = getData();
+
+            return  productInfoArr;
+        },
+        function (result) {
+            ph.exit();
+            storeResult(result);
+//            (function(){
+//                setTimeout(function () {
+//                    page.render('test.jpeg');
+//                    console.log('saved');
+//                }, 5000);
+//            })();
+
         });
 };
 
 //TODO(error)
-exports.evaluateNSPageAhead2 = function (page, ph) {
-    page.evaluate(function () {
-        var getDateStrAfter = function (days) {
-            var today = new Date();	//년, 월-1, 일
-            var tmr = new Date();
-            tmr.setDate(today.getDate() + days);
-
-            var timeStr = ''+tmr.getFullYear()
-                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
-                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
-            return timeStr;
-        };
-        var cmd = 'window.location = "http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=' + getDateStrAfter(2) + '"';
-        eval(cmd);
-    }, function () {
-        setTimeout(function () {
-            exports.evaluateNSPage(page, ph);
-        }, 5000);
+exports.evaluateNSPageAhead = function (page, ph) {
+    var url = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=' + util.getDateStrAfter(1);
+    page.open(url, function (status) {
+        console.log('open 2nd', url, status);
+        exports.evaluteNSPageForAhead(page, ph);
     });
 };
+
+//TODO(error)
+exports.evaluateNSPageAhead2 = function (page, ph) {
+    var url = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=' + util.getDateStrAfter(2);
+    page.open(url, function (status) {
+        console.log('open 2nd', + url, status);
+        exports.evaluteNSPageForAhead(page, ph);
+    });
+};
+
