@@ -142,7 +142,6 @@ exports.evaluateCJPage = function (page, ph) {
         function (result) { //한 편성표 페이지에서 크롤링해온 데이터들
             ph.exit();
             storeResult(result);
-
         });
 };
 
@@ -791,7 +790,7 @@ exports.evaluateCJPageAhead = function (page, ph) {
 
     function doJob(){
         page.evaluate(function () {
-            var cmd = " var btns = document.querySelectorAll('.date_area li a'); btns[6].click()";
+            var cmd = " var btns = document.querySelectorAll('.date_area li a'); btns[6].click()";  //undefined
             eval(cmd);
         }, function () {
             setTimeout(function () {
@@ -803,13 +802,15 @@ exports.evaluateCJPageAhead = function (page, ph) {
 };
 //TODO(error) : CJ는 더 알아봐야. 일단 기본적으로 내일 편성표까지
 exports.evaluateCJPageAhead2 = function (page, ph) {
+    page.render('first.jpeg');
     page.evaluate(function () {
-        var cmd = " jQuery('.date_area li a')[7].click() ";
-        eval(cmd);
+    eval("var btns = document.querySelectorAll('.date_area li a'); $(btns[7]).click()");
     }, function () {
+        page.render('second.jpeg');
         setTimeout(function () {
             exports.evaluateCJPage(page, ph);
-        }, 10000);
+            page.render('third.jpeg');
+        }, 3000);
     });
 };
 
@@ -1585,7 +1586,6 @@ exports.evaluteNSPageForAhead = function(page, ph){
         });
 };
 
-//TODO(error)
 exports.evaluateNSPageAhead = function (page, ph) {
     var url = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=' + util.getDateStrAfter(1);
     page.open(url, function (status) {
@@ -1594,7 +1594,6 @@ exports.evaluateNSPageAhead = function (page, ph) {
     });
 };
 
-//TODO(error)
 exports.evaluateNSPageAhead2 = function (page, ph) {
     var url = 'http://www.nsmall.com/jsp/etv/shopping_schedule.jsp?sel_date=' + util.getDateStrAfter(2);
     page.open(url, function (status) {
