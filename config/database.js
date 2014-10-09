@@ -9,9 +9,9 @@ db.pool = generic_pool.Pool({
         var config = {
             host: '127.0.0.1',
             port: '3306',
-            user: 'root',
-            password: 'wldus1004',
-            database: 'isuda'
+            user: 'FitterNoteAdmin',
+            password: 'fitter',
+            database: 'test'
         };
         var client = mysql.createConnection(config);
         client.connect(function(err) {
