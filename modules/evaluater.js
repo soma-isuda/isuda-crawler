@@ -802,14 +802,11 @@ exports.evaluateCJPageAhead = function (page, ph) {
 };
 //TODO(error) : CJ는 더 알아봐야. 일단 기본적으로 내일 편성표까지
 exports.evaluateCJPageAhead2 = function (page, ph) {
-    page.render('first.jpeg');
     page.evaluate(function () {
     eval("var btns = document.querySelectorAll('.date_area li a'); $(btns[7]).click()");
     }, function () {
-        page.render('second.jpeg');
         setTimeout(function () {
             exports.evaluateCJPage(page, ph);
-            page.render('third.jpeg');
         }, 3000);
     });
 };

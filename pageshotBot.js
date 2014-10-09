@@ -4,7 +4,6 @@
 
 var phantom = require('phantom');
 var model = require('./modules/model');
-var $ = require('jquery');
 var util = require('./modules/util');
 
 //var url = 'http://mw.cjmall.com/m/prd/detail_cate.jsp?app_cd=PDA&item_cd=30414957&pic=TALI02';

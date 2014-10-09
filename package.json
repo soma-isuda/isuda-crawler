@@ -10,7 +10,7 @@
         "mysql": "2.5.0",
         "generic-pool": "^2.0.4",
         "async" : "*",
-        "jquery" : "*",
+
         "cron" : "*"
     }
 }
