@@ -25,6 +25,9 @@ var createPhantom = function (pd){
 
             page.open(pd.productPgURL, function (status) {
                 console.log("pageshotBot - opening page", pd.productPgURL, status);
+                if(status.equal('fail')){
+                    ph.exit();
+                }
 
                 if(pd.providerId == 'CJ') {
                     evaluateCjProductPg(page, ph, pd.id);
