@@ -53,7 +53,7 @@ exports.updateProductInfo = function(data, callback) {
 exports.selectPriceById = function(data, callback) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
-        var Query = 'select productPrice from productInfo WHERE providerId = ? AND id = ? ';
+        var Query = 'select productPrice, productEndTime from productInfo WHERE providerId = ? AND id = ? ';
         conn.query(Query, data, function(err, result) {
 // //            console.log('selectProductInfoPrice_Id result', result);
             callback(err, result);

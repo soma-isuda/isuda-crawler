@@ -17,7 +17,7 @@ function storeResult(result){
             setTimeout(
                 function() {
                     var p = result[idx];
-                    checkNewProduct(p.providerId, p.id, p.productPrice, function (check) {
+                    checkNewProduct(p.providerId, p.id, p.productPrice, p.productEndTime, function (check) {
                         console.log(p.id, Object.keys(CHECK_RESULT)[check], p.productPrice);
                         switch (check){
                             case CHECK_RESULT.INSERT :
@@ -49,7 +49,7 @@ function updateProductInfo(data){
         if (err) console.error('err', err);
     });
 }
-function checkNewProduct(providerId, productId, productPrice, callback){
+function checkNewProduct(providerId, productId, productPrice, productEndTime, callback){
     model.selectPriceById([providerId, productId], function (err, result) { //해당 id가 테이블에 존재하는 지 확인
     // 존재? [ { productPrice: 33900 } ] : []
         if (err) console.error('err', err);
@@ -57,7 +57,7 @@ function checkNewProduct(providerId, productId, productPrice, callback){
             if(result[0] == undefined){  //아이디가 존재하지 않음 ==> INSERT
                 callback(CHECK_RESULT.INSERT);
             }else{
-                if(result[0].productPrice == productPrice){
+                if(result[0].productPrice == productPrice && result[0].productEndTime == productEndTime){
                     callback(CHECK_RESULT.NOTHING); //가격이 같음 ==> NOTHING
                 }else{
                     callback(CHECK_RESULT.UPDATE);  //가격이 다름 ==> UPDATE
