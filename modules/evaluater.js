@@ -57,8 +57,9 @@ function checkNewProduct(providerId, productId, productPrice, productEndTime, ca
             if(result[0] == undefined){  //아이디가 존재하지 않음 ==> INSERT
                 callback(CHECK_RESULT.INSERT);
             }else{
-                if(result[0].productPrice == productPrice && result[0].productEndTime == productEndTime){
-                    callback(CHECK_RESULT.NOTHING); //가격이 같음 ==> NOTHING
+                if(result[0].productPrice == productPrice && new Date(result[0].productEndTime).toISOString() == new Date(productEndTime).toISOString()){
+                    callback(CHECK_RESULT.NOTHING); //가격이 같고, 끝나는 시간도 같음 ==> NOTHING
+                    //GS 경우, 다음 편성이 이전 편성의 시작 시간이므로 중간에 편성이 끼는 경우 데이터 업데이트 필요.
                 }else{
                     callback(CHECK_RESULT.UPDATE);  //가격이 다름 ==> UPDATE
                 }
@@ -521,7 +522,7 @@ exports.evaluateHSPage = function (page, ph) {
         });
 };
 
-//TODO(must) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시) --> 크롤링 스케줄링으로 해결
+//TODO(must) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시!!) --> 크롤링 스케줄링으로 해결
 exports.evaluateLHPage = function (page, ph) {
     page.evaluate(function () {
             var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
@@ -588,25 +589,43 @@ exports.evaluateLHPage = function (page, ph) {
                             // 만드는 정보 : id, providerId
 
                             var idx;
+                            var isTomorrow = false;
                             for (idx = 0; idx < frameArr.length; idx++) {
                                 var productInfo = {};
                                 var frameEle = $(frameArr[idx]);  //main frame
 
                                 var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
-                                var startTime = cDateStr + timeArr[0]; //201410020820
 
-                                productInfo.providerId = 'LH';
-                                productInfo.id = productInfo.providerId + startTime ;
+                                var startTime = timeArr[0];   //1935
+                                var endTime = timeArr[1];     //2145
 
-                                productInfo.productStartTime = util.toDateTime(startTime);
+                                if(endTime == undefined)
+                                    continue;
 
-                                var endTime = cDateStr + timeArr[1] ; //201409300100
+                                //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                                var startDateTime;
+                                var endDateTime;
 
-                                if(idx == frameArr.length-1){   //마지막 날짜면
-                                    endTime = util.toTomorrow(cDateStr, timeArr[1]);
+                                if(isTomorrow){
+                                    endDateTime = util.toTomorrow(cDateStr, endTime);
+                                    startDateTime = util.toTomorrow(cDateStr, startTime);
+                                }else{
+                                    endDateTime = cDateStr + endTime;
+                                    startDateTime = cDateStr + startTime;
                                 }
 
-                                productInfo.productEndTime = util.toDateTime(endTime);
+
+
+                                if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                                    isTomorrow = true;
+                                    endDateTime = util.toTomorrow(cDateStr, endTime);
+                                }
+
+                                productInfo.providerId = 'LH';
+                                productInfo.id = productInfo.providerId + startDateTime ;
+
+                                productInfo.productStartTime = util.toDateTime(startDateTime);
+                                productInfo.productEndTime = util.toDateTime(endDateTime);
 
                                 var ele = frameEle.find('.mainlist');
 
@@ -627,10 +646,7 @@ exports.evaluateLHPage = function (page, ph) {
                             return productInfoArr;
                         }
 
-                        var productInfoArr = [];
-                        productInfoArr = getData();
-
-                        return productInfoArr;
+                        return getData();
 
                     }, function (result) {
                         ph.exit();
@@ -1233,7 +1249,7 @@ exports.evaluateLHPageAhead = function (page, ph) {
         });
     }
     function thirdJob() { //홈쇼핑 편성표를 불러오는 것까지 성공.
-        page.evaluate(function () {
+        page.evaluate(function LH() {
 
             var util = {
                 toDateTime: function (str) {
@@ -1260,7 +1276,7 @@ exports.evaluateLHPageAhead = function (page, ph) {
                     var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
 
                     tmr.setDate(today.getDate()+1);
-                    tmr.setHours(Number(HH_mm.substr(0,2)), Number(HH_mm.substr(2,2)));
+                    tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
 
                     var timeStr = ''+tmr.getFullYear()
                         +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
@@ -1284,25 +1300,44 @@ exports.evaluateLHPageAhead = function (page, ph) {
                 // 만드는 정보 : id, providerId
 
                 var idx;
+                var isTomorrow = false;
                 for (idx = 0; idx < frameArr.length; idx++) {
                     var productInfo = {};
                     var frameEle = $(frameArr[idx]);  //main frame
 
                     var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
-                    var startTime = cDateStr + timeArr[0]; //201410020820
 
-                    productInfo.providerId = 'LH';
-                    productInfo.id = productInfo.providerId + startTime ;
+                    var startTime = timeArr[0];   //1935
+                    var endTime = timeArr[1];     //2145
 
-                    productInfo.productStartTime = util.toDateTime(startTime);
+                    if(endTime == undefined)
+                        continue;
 
-                    var endTime = cDateStr + timeArr[1] ; //201409300100
+                    //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                    var startDateTime;
+                    var endDateTime;
 
-                    if(idx == frameArr.length-1){   //마지막 날짜면
-                        endTime = util.toTomorrow(cDateStr, timeArr[1]);
+                    if(isTomorrow){
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                        startDateTime = util.toTomorrow(cDateStr, startTime);
+                    }else{
+                        endDateTime = cDateStr + endTime;
+                        startDateTime = cDateStr + startTime;
                     }
 
-                    productInfo.productEndTime = util.toDateTime(endTime);
+
+
+                    if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                        isTomorrow = true;
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                    }
+
+                    productInfo.providerId = 'LH';
+                    productInfo.id = productInfo.providerId + startDateTime ;
+
+                    productInfo.productStartTime = util.toDateTime(startDateTime);
+                    productInfo.productEndTime = util.toDateTime(endDateTime);
+
 
                     var ele = frameEle.find('.mainlist');
 
@@ -1323,10 +1358,7 @@ exports.evaluateLHPageAhead = function (page, ph) {
                 return productInfoArr;
             }
 
-            var productInfoArr = [];
-            productInfoArr = getData();
-
-            return productInfoArr;
+            return getData();
 
         }, function (result) {
             ph.exit();
@@ -1423,25 +1455,44 @@ exports.evaluateLHPageAhead2 = function (page, ph) {
                 // 만드는 정보 : id, providerId
 
                 var idx;
+                var isTomorrow = false;
                 for (idx = 0; idx < frameArr.length; idx++) {
                     var productInfo = {};
                     var frameEle = $(frameArr[idx]);  //main frame
 
                     var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
-                    var startTime = cDateStr + timeArr[0]; //201410020820
 
-                    productInfo.providerId = 'LH';
-                    productInfo.id = productInfo.providerId + startTime ;
+                    var startTime = timeArr[0];   //1935
+                    var endTime = timeArr[1];     //2145
 
-                    productInfo.productStartTime = util.toDateTime(startTime);
+                    if(endTime == undefined)
+                        continue;
 
-                    var endTime = cDateStr + timeArr[1] ; //201409300100
+                    //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                    var startDateTime;
+                    var endDateTime;
 
-                    if(idx == frameArr.length-1){   //마지막 날짜면
-                        endTime = util.toTomorrow(cDateStr, timeArr[1]);
+                    if(isTomorrow){
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                        startDateTime = util.toTomorrow(cDateStr, startTime);
+                    }else{
+                        endDateTime = cDateStr + endTime;
+                        startDateTime = cDateStr + startTime;
                     }
 
-                    productInfo.productEndTime = util.toDateTime(endTime);
+
+
+                    if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                        isTomorrow = true;
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                    }
+
+                    productInfo.providerId = 'LH';
+                    productInfo.id = productInfo.providerId + startDateTime ;
+
+                    productInfo.productStartTime = util.toDateTime(startDateTime);
+                    productInfo.productEndTime = util.toDateTime(endDateTime);
+
 
                     var ele = frameEle.find('.mainlist');
 
@@ -1617,3 +1668,114 @@ exports.evaluateNSPageAhead2 = function (page, ph) {
     });
 };
 
+function LH() {
+
+    var util = {
+        toDateTime: function (str) {
+            return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' '
+                + str.substring(8, 10) + ':' + str.substring(10, 12) + ':00';
+        },
+        toCleanName: function (str) {
+            var removedTagStr;
+            var after;
+            var first = str.search(/\[/);
+            var second = str.search(/\]/);
+            if (first == -1 || second == -1) {
+                removedTagStr = str;
+            }
+            removedTagStr = str.replace(str.slice(first, second + 1), '');
+            after = removedTagStr.replace(/\t/g, '').replace(/\n/g, '');
+            return after;
+        },
+        toTomorrow : function (yy_mm_dd, HH_mm) {      //년월일, 시간분 --> 다음 날, 넣어준 시간으로.
+
+//                                var yy_mm_dd = '20140131';	//년월일
+//                                var HH_mm = '2010';	//시간분
+            var today = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));	//년, 월-1, 일
+            var tmr = new Date(Number(yy_mm_dd.substr(0, 4)), Number(yy_mm_dd.substr(4, 2))-1, Number(yy_mm_dd.substr(6, 2)));
+
+            tmr.setDate(today.getDate()+1);
+            tmr.setHours(parseInt(HH_mm.substr(0,2)), parseInt(HH_mm.substr(2,2)));
+
+            var timeStr = ''+tmr.getFullYear()
+                +( tmr.getMonth()+1<10 ? '0'+(tmr.getMonth()+1) : (tmr.getMonth()+1) )
+                +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() )
+                +( tmr.getHours()<10 ? '0'+tmr.getHours() : tmr.getHours() )
+                +( tmr.getMinutes()<10 ? '0'+tmr.getMinutes() : tmr.getMinutes() );
+            return timeStr;
+        }
+    };
+
+
+    function getData() {
+        var productInfoArr = [];
+        var frameArr = $('.onAirPrdLst');
+        var dateStr = $('#selDate').text(); //10월 02일 (목)
+
+        // 크롤링하는 시점의 년도 + 크롤링해온 월 일
+        var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(4, 2);  //20140929
+
+        // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
+        // 만드는 정보 : id, providerId
+
+        var idx;
+        var isTomorrow = false;
+        for (idx = 0; idx < frameArr.length; idx++) {
+            var productInfo = {};
+            var frameEle = $(frameArr[idx]);  //main frame
+
+            var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
+
+            var startTime = timeArr[0];   //1935
+            var endTime = timeArr[1];     //2145
+
+            if(endTime == undefined)
+                continue;
+
+            //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+            var startDateTime;
+            var endDateTime;
+
+            if(isTomorrow){
+                endDateTime = util.toTomorrow(cDateStr, endTime);
+                startDateTime = util.toTomorrow(cDateStr, startTime);
+            }else{
+                endDateTime = cDateStr + endTime;
+                startDateTime = cDateStr + startTime;
+            }
+
+
+
+            if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                isTomorrow = true;
+                endDateTime = util.toTomorrow(cDateStr, endTime);
+            }
+
+            productInfo.providerId = 'LH';
+            productInfo.id = productInfo.providerId + startDateTime ;
+
+            productInfo.productStartTime = util.toDateTime(startDateTime);
+            productInfo.productEndTime = util.toDateTime(endDateTime);
+
+            var ele = frameEle.find('.mainlist');
+
+            productInfo.productName = util.toCleanName(ele.find('.title').text());
+
+            var priceStr = ele.find('.price').text().replace(/,|원/g,'');   //71,910원 --> 71910
+            productInfo.productPrice = Number(priceStr);
+
+            var pdURLStr = ele.find('.goods_info a').attr('href');
+            var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
+            productInfo.productPgURL = 'http://m.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
+
+            productInfo.productImgURL = ele.find('img').attr('src');
+
+            productInfoArr.push(productInfo);
+        }
+
+        return productInfoArr;
+    }
+
+    return getData();
+
+}
