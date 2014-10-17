@@ -146,6 +146,7 @@ exports.evaluateCJPage = function (page, ph) {
 };
 
 //eval, eval-eval
+//TODO : 현재는 마지막 방송 ~ 다음날 1시 이지만 혹시나 이 규칙이 바뀌면 에러 발생 가능성!! isTomorrow 로직 이용 안함.
 exports.evaluateGSPage = function (page, ph) {
     page.evaluate(function () {
             var util = {
@@ -329,6 +330,7 @@ exports.evaluateHMPage = function (page, ph) {
 
                             var timeStr = timeArr[idx].innerHTML; //19:35 ~ 21:45 주방가전/주방용품
                             var strArr = timeStr.split(' ');
+
                             var startTime = strArr[0].replace(':','');   //1935
                             var endTime = strArr[2].replace(':','');     //2145
 
@@ -392,7 +394,7 @@ exports.evaluateHMPage = function (page, ph) {
         });
 };
 
-//TODO(more) changeCalendarDay(20141006) // 날짜를 넣어서 이동
+// changeCalendarDay(20141006) // 날짜를 넣어서 이동
 exports.evaluateHSPage = function (page, ph) {
     page.evaluate(function () {
             var util = {
@@ -444,37 +446,53 @@ exports.evaluateHSPage = function (page, ph) {
                 // 만드는 정보 : id, providerId
 
                 var idx;
+                var isTomorrow = false;
                 for (idx = 0; idx < frameArr.length; idx++) {
                     var productInfo = {};
                     var frameEle = $(frameArr[idx]);  //main frame
 
                     var timeStr = frameEle.find('h3').text();  //01:00 ~ 02:00
                     var strArr = timeStr.split(' ');
-                    var startTime = strArr[0];   //19:35
-                    var endTime = strArr[2];     //21:45
+                    var startTime = strArr[0].replace(':','');   //1935
+                    var endTime = strArr[2].replace(':','');     //2145
 
-                    startTime = cDateStr + startTime.substr(0, 2) + startTime.substr(3, 2); //201409290100
+//                    startTime = cDateStr + startTime.substr(0, 2) + startTime.substr(3, 2); //201409290100
 
-                    //TODO : 시간 비교 알고리즘
-//                    var endTime = '01:00';  //언제나 다음날 한 시에 끝남.
-//                    if(parseInt(endTime) < parseInt(startTime)){
-//                        endTime = cDateStr.slice(0, 6) + (parseInt(dateStr.substr(3, 5))+1) + '0100'; //201409300100
+//                    if(idx == frameArr.length-1){   //마지막 날짜면
+//                        endTime = util.toTomorrow(cDateStr, endTime.substr(0, 2) + endTime.substr(3, 2));
+//                    }else{
+//                        endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 2);
 //                    }
 
-                    if(idx == frameArr.length-1){   //마지막 날짜면
-                        endTime = util.toTomorrow(cDateStr, endTime.substr(0, 2) + endTime.substr(3, 2));
+                    //마지막 날짜 예외 처리 - 다음 날로 넘어가는 | 다음 날
+                    var startDateTime;
+                    var endDateTime;
+
+                    if(isTomorrow){
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                        startDateTime = util.toTomorrow(cDateStr, startTime);
                     }else{
-                        endTime = cDateStr + endTime.substr(0, 2) + endTime.substr(3, 2);
+                        endDateTime = cDateStr + endTime;
+                        startDateTime = cDateStr + startTime;
+
                     }
+
+                    if(  Number(endTime.substr(0,2)) < Number(startTime.substr(0,2))  ){   //끝나는 시간이 시작하는 시간보다 작으면
+                        isTomorrow = true;
+                        endDateTime = util.toTomorrow(cDateStr, endTime);
+                    }
+
+                    productInfo.productStartTime = util.toDateTime(startDateTime);
+                    productInfo.productEndTime = util.toDateTime(endDateTime);
 
 
 
 
                     productInfo.providerId = 'HS';
-                    productInfo.id = productInfo.providerId + startTime;
+                    productInfo.id = productInfo.providerId + startDateTime;
 
-                    productInfo.productStartTime = util.toDateTime(startTime);
-                    productInfo.productEndTime = util.toDateTime(endTime);
+//                    productInfo.productStartTime = util.toDateTime(startTime);
+//                    productInfo.productEndTime = util.toDateTime(endTime);
 
                     var ele = frameEle.find('.product');
 
