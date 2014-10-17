@@ -31,7 +31,7 @@ var createPhantom = function (pdEle) {
     });
 };
 var args = process.argv.slice(2);
-var whereClause = ' where productEndTime > now() and providerId = "' + args + '"  and (secondId is null or secondId = -2)';
+var whereClause = ' where providerId = "' + args + '"  and (secondId is null or secondId = -2)';
 //whereClause = '';
 excuteBot(whereClause);
 
