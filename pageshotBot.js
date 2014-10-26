@@ -23,11 +23,11 @@ var createPhantom = function (pd){
             else if(pd.providerId == 'NS')
                 pd.productPgURL.replace('itemview.jsp?', 'itemview_desc.jsp?popup=y&');
 
-            page.open(pd.productPgURL, function (status) {
-                console.log("pageshotBot - opening page", pd.productPgURL, status);
-                if(status.equal('fail')){
-                    ph.exit();
-                }
+
+                page.open(pd.productPgURL, function (status) {
+                    console.log("pageshotBot - opening page", pd.productPgURL, status);
+                    if(status == 'fail')
+                        ph.exit();
 
                 if(pd.providerId == 'CJ') {
                     evaluateCjProductPg(page, ph, pd.id);
@@ -163,7 +163,7 @@ function evaluateLHProductPg(page, ph, id) {
             eval('goDetail();');
         },
         function () {
-            setTimeout(savePageShot(page, ph, id), 2000);
+            setTimeout(savePageShot(page, ph, id), 4000);
         });
 }
 
