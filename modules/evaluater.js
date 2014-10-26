@@ -579,11 +579,11 @@ exports.evaluateLHPage = function (page, ph) {
 
                         function getData() {
                             var productInfoArr = [];
-                            var frameArr = $('.onAirPrdLst');
-                            var dateStr = $('#selDate').text(); //10월 02일 (목)
+                            var frameArr = $('.proLst li .proBox');
+                            var dateStr = $('#day2 .today').attr('bd_date'); //"20141027"
 
                             // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                            var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(4, 2);  //20140929
+                            var cDateStr = dateStr; //20140929
 
                             // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                             // 만드는 정보 : id, providerId
@@ -594,7 +594,7 @@ exports.evaluateLHPage = function (page, ph) {
                                 var productInfo = {};
                                 var frameEle = $(frameArr[idx]);  //main frame
 
-                                var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
+                                var timeArr = frameEle.find('.proTime').text().replace(/\s|:/g,'').split('~');  //0050, 0200
 
                                 var startTime = timeArr[0];   //1935
                                 var endTime = timeArr[1];     //2145
@@ -627,14 +627,13 @@ exports.evaluateLHPage = function (page, ph) {
                                 productInfo.productStartTime = util.toDateTime(startDateTime);
                                 productInfo.productEndTime = util.toDateTime(endDateTime);
 
-                                var ele = frameEle.find('.mainlist');
+                                var ele = frameEle.find('.proMain');
 
-                                productInfo.productName = util.toCleanName(ele.find('.title').text());
+                                productInfo.productName = util.toCleanName(ele.find('.tit').text());
 
                                 var priceStr = ele.find('.price').text().replace(/,|원/g,'');   //71,910원 --> 71910
                                 productInfo.productPrice = Number(priceStr);
-
-                                var pdURLStr = ele.find('.goods_info a').attr('href');
+                                var pdURLStr = ele.find('.cate_list_inven a').attr('href');
                                 var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
                                 productInfo.productPgURL = 'http://m.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
 
@@ -1240,9 +1239,19 @@ exports.evaluateLHPageAhead = function (page, ph) {
                     +( tmr.getDate()<10 ? '0'+tmr.getDate() : tmr.getDate() );
                 return timeStr;
             };
-            var cmd = "javascript:fn_goPgmDayList('" + getDateStrAfter(1) + "')";
+            var list = $('#day2 li');
+            var idx;
+            for(var i=0; i<list.length; i++)
+            {
+                if( $(list[i]).attr('bd_date') == getDateStrAfter(1)){
+                    idx = i; break;
+                }
+            }
+            var cmd = '$(list[' + idx + ']).click()';
             eval(cmd);
-        }, function () {
+            return idx;
+        }, function (idx) {
+            console.log('idx', idx);
             setTimeout(function () {
                 thirdJob();
             }, 3000);
@@ -1287,14 +1296,13 @@ exports.evaluateLHPageAhead = function (page, ph) {
                 }
             };
 
-
             function getData() {
                 var productInfoArr = [];
-                var frameArr = $('.onAirPrdLst');
-                var dateStr = $('#selDate').text(); //10월 02일 (목)
+                var frameArr = $('.proLst li .proBox');
+                var dateStr = $('#day2 .today').attr('bd_date'); //"20141027"
 
                 // 크롤링하는 시점의 년도 + 크롤링해온 월 일
-                var cDateStr = new Date().getFullYear() + dateStr.substr(0, 2) + dateStr.substr(3, 2);  //20140929
+                var cDateStr = dateStr; //20140929
 
                 // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                 // 만드는 정보 : id, providerId
@@ -1305,7 +1313,7 @@ exports.evaluateLHPageAhead = function (page, ph) {
                     var productInfo = {};
                     var frameEle = $(frameArr[idx]);  //main frame
 
-                    var timeArr = frameEle.find('.tvlive_header time').text().replace(/\s|:/g,'').split('~');  //0050, 0200
+                    var timeArr = frameEle.find('.proTime').text().replace(/\s|:/g,'').split('~');  //0050, 0200
 
                     var startTime = timeArr[0];   //1935
                     var endTime = timeArr[1];     //2145
@@ -1338,15 +1346,13 @@ exports.evaluateLHPageAhead = function (page, ph) {
                     productInfo.productStartTime = util.toDateTime(startDateTime);
                     productInfo.productEndTime = util.toDateTime(endDateTime);
 
+                    var ele = frameEle.find('.proMain');
 
-                    var ele = frameEle.find('.mainlist');
-
-                    productInfo.productName = util.toCleanName(ele.find('.title').text());
+                    productInfo.productName = util.toCleanName(ele.find('.tit').text());
 
                     var priceStr = ele.find('.price').text().replace(/,|원/g,'');   //71,910원 --> 71910
                     productInfo.productPrice = Number(priceStr);
-
-                    var pdURLStr = ele.find('.goods_info a').attr('href');
+                    var pdURLStr = ele.find('.cate_list_inven a').attr('href');
                     var pdNumStr = pdURLStr.replace("javascript:fn_goodsCheckAdult({goods_no:",'').replace(/\s/g,'').split(',')[0];
                     productInfo.productPgURL = 'http://m.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=' + pdNumStr;
 
@@ -1357,12 +1363,12 @@ exports.evaluateLHPageAhead = function (page, ph) {
 
                 return productInfoArr;
             }
-
             return getData();
 
         }, function (result) {
+            console.log(result);
             ph.exit();
-            storeResult(result);
+//            storeResult(result);
         });
 
     }
