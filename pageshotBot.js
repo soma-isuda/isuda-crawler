@@ -63,7 +63,6 @@ var createPhantom = function (pd){
 // http://www.nsmall.com/jsp/item/itemview_desc.jsp?popup=y&good_id=14431720
 
 
-
 //실행하는 곳
 var args = process.argv.slice(2);
 var whereClause = ' where productStartTime > now() and providerId = "' + args + '"';

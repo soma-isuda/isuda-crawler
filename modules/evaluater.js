@@ -525,8 +525,8 @@ exports.evaluateHSPage = function (page, ph) {
 //TODO(must) : 현재 방송 중인 상품 데이터 누락(남은 시간으로 표시!!) --> 크롤링 스케줄링으로 해결
 exports.evaluateLHPage = function (page, ph) {
     page.evaluate(function () {
-            var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
-            eval('window.location = "' + url + '"');
+//            var url = $('nav .menu_liveTv .btn_lt03').first().attr('href');
+//            eval('window.location = "' + url + '"');
         },
         function () {
             console.log('first evaluate');
@@ -575,7 +575,6 @@ exports.evaluateLHPage = function (page, ph) {
                                return timeStr;
                             }
                         };
-
 
                         function getData() {
                             var productInfoArr = [];
@@ -648,8 +647,9 @@ exports.evaluateLHPage = function (page, ph) {
                         return getData();
 
                     }, function (result) {
+                        console.log(result);
                         ph.exit();
-                        storeResult(result);
+//                        storeResult(result);
                     });
 
             }
