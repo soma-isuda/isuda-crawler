@@ -78,7 +78,8 @@ exports.selectPriceById = function(data, callback) {
 exports.updateCategory = function(data, callback) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
-        conn.query('UPDATE productInfo SET firstId = (SELECT id FROM firstCategory WHERE NAME = ?), secondId = (SELECT id FROM secondCategory WHERE NAME = ?) WHERE id= ?', data, function(err, result) {
+        conn.query('UPDATE productInfo SET firstId = (SELECT f.id FROM firstCategoryStandard f, secondCategoryStandard s WHERE f.NAME = ? and s.NAME = ? and s.firstStandardId = f.id), secondId = (SELECT s.id FROM firstCategoryStandard f, secondCategoryStandard s WHERE f.NAME = ? and s.NAME = ? and s.firstStandardId = f.id) WHERE id= ?',
+            [data[0], data[1], data[0],data[1], data[2]], function(err, result) {
 //            console.log('updateCategory update result', result);
             callback(err, result);
         });
