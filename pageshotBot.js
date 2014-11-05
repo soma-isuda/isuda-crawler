@@ -21,8 +21,8 @@ var createPhantom = function (pd) {
             //전처리
             if (pd.providerId == 'HM' || pd.providerId == 'LH')
                 util.setUserAgent(page);
-            else if(pd.providerId == 'HS')
-                pd.productPgURL += '/detail';
+//            else if(pd.providerId == 'HS')
+//                pd.productPgURL += '/detail';
             else if (pd.providerId == 'NS')
                 pd.productPgURL.replace('itemview.jsp?', 'itemview_desc.jsp?popup=y&');
 
@@ -47,7 +47,7 @@ var createPhantom = function (pd) {
                     evaluateLHProductPg(page, ph, pd.id);
                 }
                 else if (pd.providerId == 'NS') {
-                    console.log('NS : not supported channel..');
+                    console.log('NS is not supported channel..');
                     ph.exit();
 //                    evaluateNSProductPg(page, ph, pd.id);
                 } else {
@@ -61,7 +61,7 @@ var createPhantom = function (pd) {
     });
 };
 
-
+/*
 function excuteBot() {
     //실행하는 곳
     var args = process.argv.slice(2);
@@ -82,20 +82,27 @@ function excuteBot() {
     });
 }
 excuteBot();
+*/
 
 // {id, productPgURL, providerId}
 
-//function excuteBot(product) {
-//    createPhantom(product);
-//}
-//
-//var product2 = {
-//    id: "HS201410131740",
-//    productPgURL: "http://m.hnsmall.com/goods/view/10972410",
-//    providerId: "HS"
-//};
-//
-//excuteBot(product2);
+function excuteBot(product) {
+    createPhantom(product);
+}
+
+var product2 = {
+    id: "GS201411062350",
+    productPgURL: "http://m.gsshop.com/prd/prd.gs?prdid=14433217&lseq=397375",
+    providerId: "GS"
+};
+
+var product3 = {
+    id: "HS201411060720",
+    productPgURL: "http://m.hnsmall.com/goods/view/11237442",
+    providerId: "HS"
+};
+
+excuteBot(product3);
 
 // TODO : NS홈쇼핑의 경우에는, 현재 방송 중인 상품의 url로만 접근 가능.
 //createPhantom(); ==> 스케줄링 하는 곳에서 호출
@@ -124,17 +131,22 @@ function evaluateCJProductPg(page, ph, id) {
 
 function evaluateGSProductPg(page, ph, id) {
     page.evaluate(function () {
-            document.body.bgColor = '#fff';
             var data = "$('.prdDescriptionTab').click()";
             eval(data);
-
-            var cmd = "$('head').append(\"<link rel='stylesheet' href='http://172.16.100.171:3000/css/gs.css' type='text/css' >\")";
-            eval(cmd);
-
-            return data;
         },
-        function (result) {
-            setTimeout(savePageShot(page, ph, id), time);
+        function () {
+            setTimeout(function () {
+                secondJob();
+            }, 3000);
+            function secondJob(){
+                page.evaluate(function () {
+                    document.body.bgColor = '#fff';
+                    var cmd = "$('head').append(\"<link rel='stylesheet' href='http://172.16.100.171:3000/css/gs.css' type='text/css' >\")";
+                    eval(cmd);
+                }, function () {
+                    setTimeout(savePageShot(page, ph, id), 2000);
+                });
+            }
         });
 }
 
@@ -166,16 +178,44 @@ function evaluateNSProductPg(page, ph, id) {
 
 function evaluateHSProductPg(page, ph, id) {
     page.evaluate(function () {
-            document.body.bgColor = '#fff';
-            var cmd = "$('head').append(\"<link rel='stylesheet' href='http://172.16.100.171:3000/css/hs.css' type='text/css' >\")";
-            eval(cmd);
-            return cmd;
+            var data = "$($('.tab_cons')[0]).hide(); $($('.tab_cons')[1]).show(); $($('.tab_cons')[1]).find('.img_wrap').removeClass('ovh');";   // $('.tt_tab li')[1].click()
+            eval(data);
         },
-        function (result) {
-            console.log(result);
-            setTimeout(savePageShot(page, ph, id), time);
+        function () {
+            setTimeout(function () {
+                secondJob();
+            }, 3000);
+            function secondJob(){
+                page.evaluate(function () {
+                    document.body.bgColor = '#fff';
+                    var cmd = "$('head').append(\"<link rel='stylesheet' href='http://172.16.100.171:3000/css/hs.css' type='text/css' >\")";
+                    eval(cmd);
+                }, function () {
+                    setTimeout(savePageShot(page, ph, id), 2000);
+                });
+            }
         });
 }
+
+/* HS 상품 상세 및 탭 함수
+function detailTab(obj1,obj2){
+    var tab = jQuery('.'+obj1).find('li');
+    var tabcon = jQuery('.'+obj2);
+
+    tab.click(function(){
+        var $this = jQuery(this);
+        var $index = $this.index();
+
+        tabcon.hide();
+        tabcon.eq($index).show();
+        tab.removeClass('active');
+        $this.addClass('active');
+    });
+}
+detailTab('tt_tab','tab_cons');
+detailTab('tt_tab','tt_con');
+
+ */
 
 function evaluateLHProductPg(page, ph, id) {
     page.evaluate(function () {
@@ -190,7 +230,7 @@ function evaluateLHProductPg(page, ph, id) {
 function savePageShot(page, ph, id) {
     return function () {
         page.render('../static/pageShots/' + id + '.jpeg');
-        console.log('^_____^', id + '.jpeg', 'page saved');
+        console.log(id + '.jpeg', 'page saved');
         ph.exit();
     };
 }
