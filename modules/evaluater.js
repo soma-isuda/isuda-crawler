@@ -185,8 +185,6 @@ exports.evaluateGSPage = function (page, ph) {
                 }
             };
 
-            var productInfoArr = [];
-
             function getData() {
                 var productInfoArr = [];
                 var frameArr = $('.pro_li');
@@ -242,12 +240,11 @@ exports.evaluateGSPage = function (page, ph) {
                 return productInfoArr;
             }
 
-            productInfoArr = getData();
-
-            return  productInfoArr;
+            return  getData();
         },
         function (result) {
             ph.exit();
+            console.log(result);
             storeResult(result);
         });
 };
