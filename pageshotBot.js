@@ -61,11 +61,11 @@ var createPhantom = function (pd) {
     });
 };
 
-/*
+
 function excuteBot() {
     //실행하는 곳
     var args = process.argv.slice(2);
-    var whereClause = ' where productStartTime > now() and providerId = "' + args + '"';
+    var whereClause = ' where productEndTime > now() and providerId = "' + args + '"';
     model.selectProductURL_Id(whereClause, function (err, result) {
         if (err) console.error('err', err);
         console.log(result);
@@ -82,10 +82,9 @@ function excuteBot() {
     });
 }
 excuteBot();
-*/
 
 // {id, productPgURL, providerId}
-
+/* 단위 테스트
 function excuteBot(product) {
     createPhantom(product);
 }
@@ -103,6 +102,7 @@ var product3 = {
 };
 
 excuteBot(product3);
+*/
 
 // TODO : NS홈쇼핑의 경우에는, 현재 방송 중인 상품의 url로만 접근 가능.
 //createPhantom(); ==> 스케줄링 하는 곳에서 호출
