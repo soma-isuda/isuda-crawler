@@ -219,14 +219,14 @@ exports.evaluateGSPage = function (page, ph) {
 
                     productInfo.productEndTime = util.toDateTime(endTime);
 
-                    var ele = frameEle.find('.listwrap');
+                    var ele = frameEle.find('.listwrap').first();
 
-                    productInfo.productName = util.toCleanName(ele.find('.pro_tit').first().text());
+                    productInfo.productName = util.toCleanName(ele.find('.pro_tit').text());
 
-                    var priceStr = ele.find('.pro_price .low_num').text();
-                    productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
+                    var priceStr = ele.find('.info .pro_price .low_num').text();
+                    productInfo.productPrice = Number(priceStr.replace('원','').replace(/,/g, ''));
 
-                    productInfo.productPgURL = 'http://m.gsshop.com' + ele.find('a').first().attr('href');
+                    productInfo.productPgURL = 'http://m.gsshop.com' + ele.find('a').attr('href');
 
                     productInfo.productImgURL = ele.find('.thumb img').attr('src');
 
@@ -244,7 +244,6 @@ exports.evaluateGSPage = function (page, ph) {
         },
         function (result) {
             ph.exit();
-            console.log(result);
             storeResult(result);
         });
 };
