@@ -1,0 +1,124 @@
+header{
+    padding : 0;
+}
+
+header .btn_menu{
+    display : none;
+}
+
+header .search{
+    display : none;
+}
+
+header .btn_cart{
+    display: none;
+}
+
+header h1{
+    float:center;
+    margin:0 auto;
+}
+
+.gnb2{
+    display : none;
+}
+
+.zoom{
+    display:none;
+}
+
+.slide_item_main .slide_bullet{
+    display : none;
+}
+
+.title1 .promotion{
+    text-align: center;
+    font-size: 25px;
+}
+
+.dl1 .calcul{
+    display : none;
+}
+
+.dl1 dt{
+    font-size:25px;
+}
+
+.dl1 dd{
+    font-size:25px;
+}
+
+.dl1 .price1{
+    font-size : 25px;
+}
+
+.help{
+    display:none;
+}
+
+.banner1 a{
+    display : none;
+}
+
+.list1{
+    display : none;
+}
+
+.button1{
+    display:none;
+}
+
+.banner3{
+    display:none;
+}
+
+.sns_link .sns_icon{
+    display: none;
+}
+
+.tab1 > ul{
+    display:none;
+}
+
+.item_view a.item_detailZoom{
+    display: none;
+}
+
+.slide1.slide_item_category{
+    display:none;
+}
+
+.slide1 .content-slide li > a{
+    display : none;
+}
+.footer_script{
+    font-size:20px;
+}
+.footer_script ul{
+    display:none;
+}
+
+.scroll_top{
+    display:none;
+}
+
+.sel_button{
+    display:none;
+}
+.option_sel{
+    display:none;
+}
+
+.dl2{
+    font-size:25px;
+    height:800px;
+}
+
+.dl2 dt{
+    width:120px;
+}
+
+.dl2 dd{
+    margin-left:140px;
+    padding-bottom:20px;
+}

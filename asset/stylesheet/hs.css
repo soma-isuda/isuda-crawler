@@ -1,0 +1,106 @@
+.header .btn_sidenav{
+    display:none;
+}
+
+.header h1{
+    left:47%;
+}
+
+.header .search_box{
+    display:none;
+}
+
+.contents h1 a:first-child{
+    display : nones;
+}
+
+.goods h1 a:last-child{
+    display : none;
+}
+
+.pd_view .arrow{
+    display:none;
+}
+
+.goods h2.tit{
+    font-size:30px;
+    line-height: 0;
+}
+
+.goods .pd_sell th{
+    font-size:25px;
+}
+
+.goods .pd_sell .price_sale{
+    font-size: 25px;
+}
+
+.goods .pd_sell .price_sp span{
+    font-size: 25px;
+}
+
+.pd_order{
+    display:none;
+}
+
+.pd_total{
+    display:none;
+}
+
+.btn_goods{
+    display : none;
+}
+
+.sns_area{
+    display:none;
+}
+
+.goods_tab_wrap{
+    display:none;
+}
+
+.goods_img .img_wrap .img_all{
+    display:none;
+}
+
+.goods_img .img_wrap h2{
+    font-size:25px;
+}
+
+.goods_img .img_wrap p{
+    font-size:25px !important;
+}
+
+.goods_img .img_wrap p font{
+    font-size : 25px !important;
+}
+
+.goods_img .img_wrap p span{
+    font-size : 25px !important;
+}
+
+.goods_img .img_wrap h3.title{
+    font-size:25px;
+}
+
+.goods_img .img_wrap .goos_info th{
+    font-size:25px;
+    width:170px;
+}
+
+.goods_img .img_wrap .goos_info td{
+    font-size:25px;
+}
+
+.footer .footer_nav{
+    display: none;
+}
+
+.footer .btn_back_floating{
+    display:none !important;
+}
+
+.footer .btn_top_floating{
+    display:none !important;
+
+}

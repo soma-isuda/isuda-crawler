@@ -1,0 +1,92 @@
+#o1h_center .o1h_search_wrap .o1h_util_cate{
+    display:none;
+}
+#o1h_center .o1h_search_wrap .o1h_search_btn{
+    display: none;
+}
+
+.prodDetailView .prodDetailTit2New .img{
+    width: 250px;
+    height:250px;
+    margin: 0 auto;
+    float : center;
+    padding: 0 10px;
+}
+
+.prodDetailView .prodDetailTit2New .img img{
+    width: 250px;
+    height: 250px;
+}
+
+.prodDetailView .prodDetailTit2New .tit{
+    width: 100%;
+    font-size:30px;
+    padding-top: 15px;
+    text-align: center;
+}
+
+
+.prodDetailView .prodDetailPriceNew p{
+    line-height: 25px;
+}
+.prodDetailView .prodDetailPriceNew span{
+    font-size: 25px;
+}
+
+.prodDetailView .prodDetailPriceNew .price{
+    font-size: 25px;
+}
+
+.prodDetailView .prodDetailPriceNew .alignThe{
+    font-size: 25px;
+}
+
+.prodDetailView .prodDetailPriceNew .ChargedOffPriceNew{
+    font-size:25px;
+}
+
+.prodDetailView .prodDetailPriceNew .price span em{
+    font-size: 25px !important;
+}
+
+.prodDetailView .prodDetailPriceNew .alignThe span em{
+    font-size:25px !important;
+}
+
+.prodDetailView .prodDetailPriceNew .ChargedOffPriceNew span em{
+    font-size: 25px !important;
+}
+
+.prodDetail{
+    border-top:1px dashed #e3e3e3;
+}
+
+.prodDetail .prodDetailTabMenuWrap{
+    display:none;
+}
+
+.prodDetail .prodDetailViewImg .magnifier p{
+    display:none;
+}
+
+.prodDetailViewCont img{
+    margin: 0 auto;
+}
+
+.prodDetail .prodDetailViewImg .tit{
+    font-size:25px;
+}
+
+.prodDetail .prodDetailViewImg .txt, .prodDetail .prodDetailViewImg .cont{
+    font-size:23px;
+}
+
+
+.bnr_btm{
+    display:none;
+}
+
+
+.o1h_footer_wrap{
+    display: none;
+}

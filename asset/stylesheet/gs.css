@@ -1,0 +1,84 @@
+#headline{
+    display: none;
+}
+
+
+.msgBanner_wrapper{
+    display: none;
+}
+
+.prdTab{
+    display: none;
+}
+.jointInformationWrap{
+    display: none;
+}
+.pop_bottom{
+    display: none;
+}
+.footer_menu{
+    display: none;
+}
+.footer_sub_nav{
+    display: none;
+}
+
+.orderBottomArea{
+    display: none;
+}
+.totalPriceInfo{
+    display: none;
+}
+
+/*button display none*/
+.prdPhotoPaging {
+    display: none;
+}
+.link {
+    display: none;
+}
+.btnCalc{
+    display: none;
+}
+.prdDescription .btnZoom{
+    display: none;
+}
+.prd_ontv_popup .page_top img {
+    display: none;
+}
+
+/*size expand*/
+* {
+    font-size: 25px;
+    line-height: 30px;
+}
+.prdInfoWrap dl dt {
+    width: 140px;
+    font-size: 25px;
+    line-height: 30px;
+}
+.priceInfo {
+    font-style: 25px;
+}
+.prdInfoWrap .priceInfo dl dd {
+    font-size: 25px;
+}
+.prdInfoWrap .priceInfo dl dd:last-child {
+    font-size: 25px;
+}
+.prdDescription header p{
+    font-size: 10px;
+}
+.prdInfoWrap .priceInfo dl dd:last-child span {
+    font-size: 25px;
+}
+
+#footer address{
+    font-size: 20px;
+}
+#footer address strong{
+    font-size: 20px;
+}
+#copyright {
+    font-size: 20px;
+}
