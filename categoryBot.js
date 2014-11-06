@@ -2,7 +2,6 @@
  * Created by Phangji on 9/28/14.
  */
 
-var $ = require('jquery');
 var phantom = require('phantom');
 var model = require('./modules/model');
 
@@ -30,10 +29,25 @@ var createPhantom = function (pdEle) {
         });
     });
 };
-var args = process.argv.slice(2);
-var whereClause = ' where providerId = "' + args + '"  and (secondId is null or secondId = -2)';
+//var args = process.argv.slice(2);
+//var whereClause = ' where providerId = "' + args + '"  and (secondId is null or secondId = -2) limit 30';
+////whereClause = '';
+//excuteBot(whereClause);
+
+var whereClause = ' where secondId = 0  and productEndTime > now() limit 40 ';
 //whereClause = '';
+//for(var i=0; i<3; i++){
+//    setTimeout((function(){
+//        return function(){
+//            excuteBot(whereClause);
+//        }
+//
+//    })(), 15000);
+//}
+
 excuteBot(whereClause);
+
+
 
 function openNaverShoppingPage(page, ph, pdNameId){
     var url = 'http://shopping.naver.com/search/all_search.nhn?query='
@@ -48,7 +62,7 @@ function openNaverShoppingPage(page, ph, pdNameId){
                 var data = [];
                 if($('._product_list') == null){
                     data.push('');
-                    data.push('');
+                    data.push('not');
                     return data;
                 }
                 var cateArr = $('._product_list').first().find('.info .depth a');
@@ -59,7 +73,7 @@ function openNaverShoppingPage(page, ph, pdNameId){
                     data.push(cateArr[1].text); //중분류
                 }else{
                     data.push('');
-                    data.push('empty');
+                    data.push('not');
                 }
 
                 return data;
