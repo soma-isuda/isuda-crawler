@@ -15,7 +15,7 @@ var time = 4000;
 var createPhantom = function (pd) {
     phantom.create(function (ph) {
         ph.createPage(function (page) {
-            page.set('viewportSize', {width: 720, height: 1080});  //브라우저가 보는 크기. 창.
+//            page.set('viewportSize', {width: 720, height: 1080});  //브라우저가 보는 크기. 창.
 //            console.log('start opeining page');
 
             //전처리
@@ -61,6 +61,27 @@ var createPhantom = function (pd) {
     });
 };
 
+function pageShot(url){
+    phantom.create(function(ph){
+        ph.createPage(function (page) {
+            page.open(url, function (status) {
+                if(status == 'fail')
+                    ph.exit();
+
+                page.evaluate(function () {
+                }, function () {
+                    setTimeout(function () {
+                        page.render('../static/' + new Date().getTime() + '.jpeg');
+                        console.log('page saved');
+                        ph.exit();
+                        process.exit(1);
+                    }, 2000);
+
+                });
+            });
+        });
+    });
+}
 
 function excuteBot() {
     //실행하는 곳
@@ -81,6 +102,12 @@ function excuteBot() {
         }
     });
 }
+//var url = process.argv.slice(2);
+//pageShot(url);
+
+
+
+
 excuteBot();
 
 // {id, productPgURL, providerId}
