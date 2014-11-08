@@ -48,7 +48,7 @@ var createPhantom = function (pd) {
                 }
                 else if (pd.providerId == 'NS') {
                     console.log('NS is not supported channel..');
-                    ph.exit();
+//                    ph.exit();
 //                    evaluateNSProductPg(page, ph, pd.id);
                 } else {
                     console.log('not supported channel..');
@@ -83,23 +83,28 @@ function pageShot(url){
     });
 }
 
-function excuteBot() {
-    //실행하는 곳
-    var args = process.argv.slice(2);
-    var whereClause = ' where productEndTime > now() and providerId = "' + args + '"';
+var intervalTime = 1000;
+function executeBot() {
+    var whereClause = ' where productEndTime > now() ';
     model.selectProductURL_Id(whereClause, function (err, result) {
         if (err) console.error('err', err);
         console.log(result);
         var pdArr = result;
 
+        console.log('데이터 갯수 :', pdArr.length);
         for (var idx in pdArr) {
             var pdEle = pdArr[idx];
-            setTimeout((function (pdEle) {
+            setTimeout((function (pdEle, idx) {
                 return function () {
                     createPhantom(pdEle);
                 }
-            })(pdEle), 2000);
+            })(pdEle, idx), intervalTime*idx);
         }
+
+        setTimeout(function () {
+            console.log('종료합니다.');
+            process.exit(1);
+        }, 6000 * pdArr.length);
     });
 }
 //var url = process.argv.slice(2);
@@ -108,14 +113,14 @@ function excuteBot() {
 
 
 
-excuteBot();
+executeBot();
 
 // {id, productPgURL, providerId}
-/* 단위 테스트
-function excuteBot(product) {
-    createPhantom(product);
-}
 
+exports.executeSingleBot = function(product) {
+    createPhantom(product);
+};
+/* 단위 테스트
 var product2 = {
     id: "GS201411062350",
     productPgURL: "http://m.gsshop.com/prd/prd.gs?prdid=14433217&lseq=397375",
@@ -128,7 +133,7 @@ var product3 = {
     providerId: "HS"
 };
 
-excuteBot(product3);
+ executeSingleBot(product3);
 */
 
 // TODO : NS홈쇼핑의 경우에는, 현재 방송 중인 상품의 url로만 접근 가능.
