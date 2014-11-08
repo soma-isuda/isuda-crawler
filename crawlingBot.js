@@ -119,51 +119,19 @@ var createPhantom = function (channel, fromNow) {
     });
 };
 
-
-//var args = process.argv.slice(2);
-//var args2 = process.argv.slice(3);
-//createPhantom(args);    //node crawlingBot 'CJ'
-
-
-
 var excuteBot = function () {
-
-//    createPhantom('CJ', FROM_NOW.TODAY);
-//    createPhantom('GS', FROM_NOW.TODAY);
-//    createPhantom('GS', FROM_NOW.TOMORROW);
-//    createPhantom('GS', FROM_NOW.TDAT);
-//    createPhantom('HM', FROM_NOW.TODAY);
-//    createPhantom('HS', FROM_NOW.TODAY);
-//    createPhantom('LH', 0);
-//    createPhantom('LH', 1);
-//    createPhantom('LH', 2);
-//    createPhantom('LH', 1);
-//    createPhantom('LH', 2);
-//    createPhantom('NS', 2);
-
-//    var fromNow = 0;
-//    for (var key in chSchedule) {
-//        (function(key){
-//            console.log('********** key **********', key, '**********', Object.keys(FROM_NOW)[fromNow], '**********');
-//            setTimeout(function () {
-//                createPhantom(key, fromNow);
-//            }, 5000);
-//        })(key);
-//    }
-
     for (var keyNow in FROM_NOW){
-
         for (var key in chSchedule) {
             (function(key){
                 console.log('********** key **********', key, '**********', keyNow, '**********');
                 setTimeout(function () {
                     createPhantom(key, FROM_NOW[keyNow]);
-                }, 5000);
+                });
             })(key);
         }
     }
-
+    setTimeout(function () {
+        process.exit(1);
+    }, 1000 * 60 * 3);
 };
-
 excuteBot();
-//createPhantom(args, args2);
