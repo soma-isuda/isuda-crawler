@@ -22,7 +22,7 @@ var excuteBot = function (whereClause) {
 
         setTimeout(function () {
             console.log('종료합니다.');
-            process._exit();
+            process.exit(1);
         }, 5000 * pdArr.length);
 
     }, whereClause);
