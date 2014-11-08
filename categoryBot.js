@@ -9,16 +9,22 @@ var excuteBot = function (whereClause) {
     model.selectProductName_Id(function (err, result) {
         if (err) console.error('err', err);
         var pdArr = result;
-
+        console.log('데이터 갯수 :', pdArr.length);
         for(var idx in pdArr){
+
             var pdEle = pdArr[idx];
             setTimeout((function(pdEle, idx){
-                console.log(pdEle.productName, idx);
                 return function(){
                     createPhantom(pdEle);
                 }
             })(pdEle, idx), 5000 * idx);
         }
+
+        setTimeout(function () {
+            console.log('종료합니다.');
+            process._exit();
+        }, 5000 * pdArr.length);
+
     }, whereClause);
 };
 
@@ -31,21 +37,8 @@ var createPhantom = function (pdEle) {
 
 
 };
-//var args = process.argv.slice(2);
-//var whereClause = ' where providerId = "' + args + '"  and (secondId is null or secondId = -2) limit 30';
-////whereClause = '';
-//excuteBot(whereClause);
 
-var whereClause = ' where secondId = 0  and productEndTime > now() limit 40 ';
-//whereClause = '';
-//for(var i=0; i<3; i++){
-//    setTimeout((function(){
-//        return function(){
-//            excuteBot(whereClause);
-//        }
-//
-//    })(), 15000);
-//}
+var whereClause = ' where secondId = 0  and productEndTime > now()';
 
 excuteBot(whereClause);
 
