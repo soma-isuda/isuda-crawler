@@ -100,10 +100,10 @@ exports.selectProductName_Id = function(callback, whereClause) {
 };
 
 //TODO: [{id, productPgURL, providerId}, , ] object Array
-exports.selectProductURL_Id = function(whereClause, callback) {
+exports.selectProductURL_Id = function(callback) {
     db.pool.acquire(function(err, conn) {
         if(err) console.error('err', err);
-        conn.query('select id, productPgURL, providerId from productInfo ' + whereClause, function(err, result) {
+        conn.query('select id, productPgURL, providerId from productInfo where providerId != "NS"', function(err, result) {
 //            console.log('selectProductURL_Id result');
             callback(err, result);
         });

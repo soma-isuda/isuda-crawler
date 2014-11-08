@@ -85,8 +85,7 @@ function pageShot(url){
 
 var intervalTime = 1000;
 function executeBot() {
-    var whereClause = ' where productEndTime > now() ';
-    model.selectProductURL_Id(whereClause, function (err, result) {
+    model.selectProductURL_Id(function (err, result) {
         if (err) console.error('err', err);
         console.log(result);
         var pdArr = result;
