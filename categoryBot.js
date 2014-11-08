@@ -38,7 +38,7 @@ var createPhantom = function (pdEle) {
 
 };
 
-var whereClause = ' where secondId = 0  and productEndTime > now()';
+var whereClause = ' where secondId = 0 or secondId = -2 and productEndTime > now()';
 
 excuteBot(whereClause);
 
