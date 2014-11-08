@@ -12,15 +12,15 @@ var excuteBot = function (whereClause) {
 
         for(var idx in pdArr){
             var pdEle = pdArr[idx];
-            setTimeout((function(pdEle){
+            setTimeout((function(pdEle, idx){
+                console.log(pdEle.productName, idx);
                 return function(){
                     createPhantom(pdEle);
                 }
-            })(pdEle), 0);
+            })(pdEle, idx), 5000 * idx);
         }
     }, whereClause);
 };
-
 
 var createPhantom = function (pdEle) {
     phantom.create(function (ph) {
@@ -28,6 +28,8 @@ var createPhantom = function (pdEle) {
             openNaverShoppingPage(page, ph, pdEle);
         });
     });
+
+
 };
 //var args = process.argv.slice(2);
 //var whereClause = ' where providerId = "' + args + '"  and (secondId is null or secondId = -2) limit 30';
@@ -48,19 +50,18 @@ var whereClause = ' where secondId = 0  and productEndTime > now() limit 40 ';
 excuteBot(whereClause);
 
 
-
-function openNaverShoppingPage(page, ph, pdNameId){
+function openNaverShoppingPage(page, ph, pdNameId) {
     var url = 'http://shopping.naver.com/search/all_search.nhn?query='
         + encodeURI(pdNameId.productName);
 
     page.open(url, function (status) {
 //        console.log("categoryBot - opening page", url, status);
-        console.log('product' , pdNameId);
+        console.log('product', pdNameId);
 
-        if(status == 'success'){
-            page.evaluate(function(){
+        if (status == 'success') {
+            page.evaluate(function () {
                 var data = [];
-                if($('._product_list') == null){
+                if ($('._product_list') == null) {
                     data.push('');
                     data.push('not');
                     return data;
@@ -68,10 +69,10 @@ function openNaverShoppingPage(page, ph, pdNameId){
                 var cateArr = $('._product_list').first().find('.info .depth a');
 
 
-                if(cateArr[0] != undefined) {
+                if (cateArr[0] != undefined) {
                     data.push(cateArr[0].text); //대분류
                     data.push(cateArr[1].text); //중분류
-                }else{
+                } else {
                     data.push('');
                     data.push('not');
                 }
@@ -87,15 +88,15 @@ function openNaverShoppingPage(page, ph, pdNameId){
                     ph.exit();
                 });
             });
-        }else{
+        } else {
             console.log('fail....try again TT');
 
             // 실패하면.
             /*
-            this.setTimeout(function () {
-                openNaverShoppingPage(page, ph, url);
-            }, 2000);
-            */
+             this.setTimeout(function () {
+             openNaverShoppingPage(page, ph, url);
+             }, 2000);
+             */
             ph.exit();
 
         }
