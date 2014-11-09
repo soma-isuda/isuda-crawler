@@ -112,7 +112,7 @@ function executeBot() {
 
 
 
-executeBot();
+//executeBot();
 
 // {id, productPgURL, providerId}
 
@@ -132,7 +132,13 @@ var product3 = {
     providerId: "HS"
 };
 
- executeSingleBot(product3);
+ var product4 = {
+ id: "LH201411062350",
+ productPgURL: "http://m.lotteimall.com/goods/viewGoodsDetailInfo.lotte?goods_no=12460445&ec_goods_artc_cd=105&srcg_mdm_cd=11&entr_contr_no=007104&otsdGoodsDtl=E1",
+ providerId: "LH"
+ };
+
+ createPhantom(product4);
 */
 
 // TODO : NS홈쇼핑의 경우에는, 현재 방송 중인 상품의 url로만 접근 가능.
@@ -254,7 +260,15 @@ function evaluateLHProductPg(page, ph, id) {
             eval('goDetail();');
         },
         function () {
-            setTimeout(savePageShot(page, ph, id), time);
+            setTimeout(function () {
+                page.evaluate(function () {
+                    var cmd = "$('head').append(\"<link rel='stylesheet' href='http://172.16.100.171:3000/css/lh.css' type='text/css' >\")";
+                    eval(cmd);
+                }, function () {
+                    setTimeout(savePageShot(page, ph, id), time);
+                });
+            }, 2000);
+
         });
 }
 

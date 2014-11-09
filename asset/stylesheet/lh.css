@@ -1,0 +1,36 @@
+.gnb a.web_gnb_m{
+	display: none;
+}
+
+.nav > li.page_back > a{
+	display: none;
+}
+
+.ytp-large-play-button-image {
+	display: none;
+}
+
+.guide_top p {
+	display: none;
+}
+
+.guide_information .product_product font {
+	font-size : 25px;
+}
+
+.guide_information h3 {
+	font-size: 30px;
+	height: 40px;
+}
+
+table.tbl_information th, .tbl_information td {
+	font-size: 25px;
+}
+
+.tbl_infor th .tbl_infor td {
+	font-size: 25px;
+}
+
+.footer ul li {
+	display: none;
+}
