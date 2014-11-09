@@ -112,7 +112,7 @@ function executeBot() {
 
 
 
-//executeBot();
+executeBot();
 
 // {id, productPgURL, providerId}
 
