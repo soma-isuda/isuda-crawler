@@ -15,7 +15,7 @@ var time = 4000;
 var createPhantom = function (pd) {
     phantom.create(function (ph) {
         ph.createPage(function (page) {
-//            page.set('viewportSize', {width: 720, height: 1080});  //브라우저가 보는 크기. 창.
+            page.set('viewportSize', {width: 720, height: 1080});  //브라우저가 보는 크기. 창.
 //            console.log('start opeining page');
 
             //전처리
