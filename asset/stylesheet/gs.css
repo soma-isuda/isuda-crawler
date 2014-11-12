@@ -1,7 +1,13 @@
 #headline{
     display: none;
 }
+.prdVod {
+    display: none;
+}
 
+.prdNames {
+    line-height: 40px;
+}
 
 .msgBanner_wrapper{
     display: none;
@@ -58,7 +64,7 @@
     line-height: 30px;
 }
 .priceInfo {
-    font-style: 25px;
+    font-size: 25px;
 }
 .prdInfoWrap .priceInfo dl dd {
     font-size: 25px;
@@ -74,11 +80,11 @@
 }
 
 #footer address{
-    font-size: 20px;
+    font-size: 15px;
 }
 #footer address strong{
-    font-size: 20px;
+    font-size: 15px;
 }
 #copyright {
-    font-size: 20px;
+    font-size: 15px;
 }
