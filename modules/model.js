@@ -110,3 +110,14 @@ exports.selectProductURL_Id = function(callback) {
         db.pool.release(conn);
     });
 };
+
+exports.selectProductURL_Id2 = function(callback) {
+    db.pool.acquire(function(err, conn) {
+        if(err) console.error('err', err);
+        conn.query('select id, productPgURL, providerId from productInfo where providerId = "LH" and productEndTime > now()', function(err, result) {
+//            console.log('selectProductURL_Id result');
+            callback(err, result);
+        });
+        db.pool.release(conn);
+    });
+};

@@ -119,19 +119,21 @@ var createPhantom = function (channel, fromNow) {
     });
 };
 
-var excuteBot = function () {
-    for (var keyNow in FROM_NOW){
+var excuteBot = function (num) {
+//    for (var keyNow in FROM_NOW){
         for (var key in chSchedule) {
             (function(key){
-                console.log('********** key **********', key, '**********', keyNow, '**********');
+//                console.log('********** key **********', key, '**********', keyNow, '**********');
                 setTimeout(function () {
-                    createPhantom(key, FROM_NOW[keyNow]);
+                    createPhantom(key, num);
                 });
             })(key);
         }
-    }
+//    }
     setTimeout(function () {
         process.exit(1);
     }, 1000 * 60 * 3);
 };
-excuteBot();
+excuteBot(0);
+excuteBot(1);
+excuteBot(2);

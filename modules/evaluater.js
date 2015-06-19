@@ -312,9 +312,11 @@ exports.evaluateHMPage = function (page, ph) {
                     function getData() {
                         var productInfoArr = [];
 
-                        var eleArr = $('#onair_list .goods_list .large_img a');
-                        var dateStr = $('.btn_date #today').first().text();
-                        var timeArr = $('#onair_list .live_time p');
+                        $('.onair_list').toggleClass('onair_now');
+                        var eleArr = $('.onair_now');
+                        var dateStr = $('.btn_date #today').first().text().substr(0,5);
+                        var timeArr = $('.onair_list .live_time p');
+
                         // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                         // 만드는 정보 : id, providerId
                         var isTomorrow = false;
@@ -359,7 +361,7 @@ exports.evaluateHMPage = function (page, ph) {
 
                             productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
 
-                            var priceStr = ele.find('.price2').text().replace('원','');
+                            var priceStr = ele.find('.price2').first().text().replace('원','');
                             productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
 
                             productInfo.productPgURL = 'http://m.hyundaihmall.com' + ele.attr('href');
@@ -928,9 +930,10 @@ exports.evaluateHMPageAhead = function (page, ph) {
             function getData() {
                 var productInfoArr = [];
 
-                var eleArr = $('#onair_list .goods_list .large_img a');
-                var dateStr = $('.btn_date #today').first().text();
-                var timeArr = $('#onair_list .live_time p');
+                $('.onair_list').toggleClass('onair_now');
+                var eleArr = $('.onair_now');
+                var dateStr = $('.btn_date #today').first().text().substr(0,5);
+                var timeArr = $('.onair_list .live_time p');
                 // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                 // 만드는 정보 : id, providerId
                 var isTomorrow = false;
@@ -971,7 +974,7 @@ exports.evaluateHMPageAhead = function (page, ph) {
                     productInfo.productEndTime = util.toDateTime(endDateTime);
                     productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
 
-                    var priceStr = ele.find('.price2').text().replace('원','');
+                    var priceStr = ele.find('.price2').first().text().replace('원','');
                     productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
 
                     productInfo.productPgURL = 'http://m.hyundaihmall.com' + ele.attr('href');
@@ -1091,9 +1094,10 @@ exports.evaluateHMPageAhead2 = function (page, ph) {
             function getData() {
                 var productInfoArr = [];
 
-                var eleArr = $('#onair_list .goods_list .large_img a');
-                var dateStr = $('.btn_date #today').first().text();
-                var timeArr = $('#onair_list .live_time p');
+                $('.onair_list').toggleClass('onair_now');
+                var eleArr = $('.onair_now');
+                var dateStr = $('.btn_date #today').first().text().substr(0,5);
+                var timeArr = $('.onair_list .live_time p');
                 // 추출하는 정보 : productName, productStartTime, productEndTime, productPrice, productPgURL, productImgURL
                 // 만드는 정보 : id, providerId
                 var isTomorrow = false;
@@ -1136,7 +1140,7 @@ exports.evaluateHMPageAhead2 = function (page, ph) {
                     productInfo.productEndTime = util.toDateTime(endDateTime);
                     productInfo.productName = util.toCleanName(ele.find('.goods_dsc h4').text());
 
-                    var priceStr = ele.find('.price2').text().replace('원','');
+                    var priceStr = ele.find('.price2').first().text().replace('원','');
                     productInfo.productPrice = Number(priceStr.replace(/,/g, ''));
 
                     productInfo.productPgURL = 'http://m.hyundaihmall.com' + ele.attr('href');
